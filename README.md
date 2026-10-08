@@ -27,11 +27,11 @@ Ikuti urutan berikut agar konfigurasi antarbagian tidak tertukar:
 
 Dokumen detail:
 
--   [WEB.md](WEB.md) --- Flask, Google Sheets, Service Account, `.env`,
+-   [WEB.md](PantauJantung/WEB.md) --- Flask, Google Sheets, Service Account, `.env`,
     dan penggunaan web.
--   [LANGFLOW.md](LANGFLOW.md) --- import flow, Composio, Google Sheets,
+-   [LANGFLOW.md](Langflow/LANGFLOW.md) --- import flow, Composio, Google Sheets,
     Agent, Guardrails, dan Flow ID.
--   [ESP32.md](ESP32.md) --- wiring, Wi-Fi, API key, upload, dan
+-   [ESP32.md](pantaujantung_esp32/ESP32.md) --- wiring, Wi-Fi, API key, upload, dan
     pengukuran.
 
 ## Arsitektur
