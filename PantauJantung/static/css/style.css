@@ -1,0 +1,1510 @@
+/*
+ * PantauJantung — Design System
+ * Terinspirasi visual dari kelarinkuyy.my.id:
+ * clean, friendly, rounded, whitespace-first, bukan dashboard template.
+ *
+ * Token utama:
+ *   --bg         : #FAFAF9  (stone-50, putih hangat)
+ *   --surface    : #FFFFFF
+ *   --border     : #E7E5E4  (stone-200)
+ *   --text       : #1C1917  (stone-900)
+ *   --muted      : #78716C  (stone-500)
+ *   --subtle     : #A8A29E  (stone-400)
+ *   --primary    : #9B1B1B  (crimson elegan)
+ *   --primary-bg : #FEF2F2  (rose-50)
+ *   --primary-border: #FECACA (rose-200)
+ */
+
+:root {
+  --bg            : #FAFAF9;
+  --surface       : #FFFFFF;
+  --border        : #E7E5E4;
+  --text          : #1C1917;
+  --muted         : #78716C;
+  --subtle        : #A8A29E;
+  --primary       : #9B1B1B;
+  --primary-hover : #7A1515;
+  --primary-bg    : #FEF2F2;
+  --primary-border: #FECACA;
+  --green         : #166534;
+  --green-bg      : #F0FDF4;
+  --green-border  : #BBF7D0;
+  --amber         : #92400E;
+  --amber-bg      : #FFFBEB;
+  --amber-border  : #FDE68A;
+
+  --radius        : 1rem;      /* 16px */
+  --radius-sm     : 0.625rem;  /* 10px */
+  --radius-lg     : 1.5rem;    /* 24px */
+
+  /* ── Spacing scale ──────────────────────────────────────────── */
+  --space-1       : 0.25rem;
+  --space-2       : 0.5rem;
+  --space-3       : 0.75rem;
+  --space-4       : 1rem;
+  --space-5       : 1.5rem;
+  --space-6       : 2.5rem;
+}
+
+/* ── Reset & base ───────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+/* ── Sticky footer: body is a flex column, <main> takes all slack ── */
+body {
+  min-height      : 100vh;
+  display         : flex;
+  flex-direction  : column;
+  background-color: var(--bg);
+  color           : var(--text);
+  font-family     : "Inter", ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  line-height     : 1.6;
+}
+
+main { flex: 1; }
+
+/* ── Shared layout container ─────────────────────────────────────── */
+.pj-container {
+  max-width    : 1100px;
+  margin-left  : auto;
+  margin-right : auto;
+  padding-left : 1.5rem;
+  padding-right: 1.5rem;
+}
+
+/* ── Navbar ──────────────────────────────────────────────────────── */
+.pj-nav {
+  position        : sticky;
+  top             : 0;
+  z-index         : 100;
+  background      : #ffffff;           /* solid white, no bleed on mobile */
+  border-bottom   : 1px solid var(--border);
+  /* contain the mobile menu inside nav flow */
+  width           : 100%;
+}
+
+.pj-nav__inner {
+  display        : flex;
+  align-items    : center;
+  justify-content: space-between;
+  height         : 60px;
+  max-width      : 1100px;
+  margin         : 0 auto;
+  padding        : 0 1.25rem;
+}
+
+.pj-nav__logo {
+  display        : flex;
+  align-items    : center;
+  gap            : 0.5rem;
+  text-decoration: none;
+  color          : var(--text);
+  font-family    : "Plus Jakarta Sans", sans-serif;
+  font-weight    : 700;
+  font-size      : 1rem;
+  letter-spacing : -0.01em;
+}
+
+.pj-nav__logo-heart {
+  color       : var(--primary);
+  font-size   : 1.15rem;
+  line-height : 1;
+}
+
+.pj-nav__links {
+  display    : flex;
+  align-items: center;
+  gap        : 0.25rem;
+  list-style : none;
+  margin     : 0;
+  padding    : 0;
+}
+
+.pj-nav__link {
+  display        : inline-block;
+  padding        : 0.4rem 0.85rem;
+  border-radius  : 999px;
+  font-size      : 0.875rem;
+  font-weight    : 500;
+  color          : var(--muted);
+  text-decoration: none;
+  transition     : color 0.15s, background 0.15s;
+}
+
+.pj-nav__link:hover {
+  color     : var(--text);
+  background: var(--border);
+}
+
+.pj-nav__link--active {
+  color      : var(--primary);
+  font-weight: 600;
+}
+
+.pj-nav__link--active:hover {
+  background: var(--primary-bg);
+  color     : var(--primary);
+}
+
+/* ── Page header (eyebrow + h1 + sub) ───────────────────────────── */
+.pj-page-header {
+  padding-top   : var(--space-6);   /* 2.5rem on all pages */
+  padding-bottom: var(--space-6);
+}
+
+/* ── Uniform page-top spacing for non-header pages (dashboard/chat) */
+.pj-page-top {
+  padding-top   : var(--space-6);
+  padding-bottom: var(--space-5);
+}
+
+.pj-eyebrow {
+  display    : block;
+  font-size  : 0.8rem;
+  font-weight: 500;
+  color      : var(--subtle);
+  margin-bottom: 0.4rem;
+  letter-spacing: 0.01em;
+}
+
+.pj-h1 {
+  font-family   : "Plus Jakarta Sans", sans-serif;
+  font-size     : clamp(1.75rem, 4vw, 2.25rem);
+  font-weight   : 800;
+  line-height   : 1.15;
+  letter-spacing: -0.025em;
+  color         : var(--text);
+  margin        : 0 0 0.5rem;
+}
+
+.pj-h2 {
+  font-family   : "Plus Jakarta Sans", sans-serif;
+  font-size     : 1.1rem;
+  font-weight   : 700;
+  letter-spacing: -0.015em;
+  color         : var(--text);
+  margin        : 0 0 0.25rem;
+}
+
+.pj-sub {
+  font-size  : 0.9375rem;
+  color      : var(--muted);
+  margin     : 0;
+  line-height: 1.55;
+}
+
+/* ── Card ────────────────────────────────────────────────────────── */
+.pj-card {
+  background   : var(--surface);
+  border       : 1.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding      : 1.75rem;
+}
+
+/* ── Form ────────────────────────────────────────────────────────── */
+.pj-field {
+  display       : flex;
+  flex-direction: column;
+  gap           : 0.375rem;
+  margin-bottom : 1.1rem;
+}
+
+.pj-label {
+  font-size  : 0.8125rem;
+  font-weight: 600;
+  color      : var(--text);
+}
+
+.pj-input {
+  width      : 100%;
+  padding    : 0.6rem 0.875rem;
+  font-size  : 0.9375rem;
+  font-family: inherit;
+  color      : var(--text);
+  background : var(--bg);
+  border     : 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  outline    : none;
+  transition : border-color 0.15s, box-shadow 0.15s;
+  appearance : none;
+  -webkit-appearance: none;
+}
+
+.pj-input:focus {
+  border-color: var(--primary);
+  box-shadow  : 0 0 0 3px rgba(155,27,27,0.1);
+  background  : #fff;
+}
+
+.pj-input--error { border-color: #EF4444 !important; }
+.pj-field-error  { font-size: 0.72rem; color: #DC2626; display: none; }
+.pj-field-error.visible { display: block; }
+
+/* select arrow */
+select.pj-input {
+  background-image   : url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2378716C' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat  : no-repeat;
+  background-position: right 0.75rem center;
+  padding-right      : 2.25rem;
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────── */
+.pj-btn {
+  display        : inline-flex;
+  align-items    : center;
+  justify-content: center;
+  gap            : 0.4rem;
+  padding        : 0.6rem 1.25rem;
+  font-family    : inherit;
+  font-size      : 0.875rem;
+  font-weight    : 600;
+  border-radius  : 999px;
+  border         : none;
+  cursor         : pointer;
+  text-decoration: none;
+  transition     : background 0.15s, color 0.15s, transform 0.1s;
+  white-space    : nowrap;
+}
+
+.pj-btn:active { transform: scale(0.97); }
+
+/* Primary: crimson fill */
+.pj-btn--primary {
+  background: var(--primary);
+  color     : #fff;
+}
+.pj-btn--primary:hover { background: var(--primary-hover); }
+
+/* Secondary: subtle fill */
+.pj-btn--secondary {
+  background: var(--border);
+  color     : var(--text);
+}
+.pj-btn--secondary:hover { background: #D6D3D1; }
+
+/* Ghost: outline */
+.pj-btn--ghost {
+  background  : transparent;
+  color       : var(--primary);
+  border      : 1.5px solid var(--primary-border);
+}
+.pj-btn--ghost:hover {
+  background  : var(--primary-bg);
+  border-color: var(--primary);
+}
+
+/* Small variant */
+.pj-btn--sm {
+  padding  : 0.375rem 0.875rem;
+  font-size: 0.8125rem;
+}
+
+/* Full-width button (replaces inline width:100%;justify-content:center) */
+.pj-btn--full {
+  width          : 100%;
+  justify-content: center;
+}
+
+/* ── Patient card (list item) ────────────────────────────────────── */
+.pj-patient-item {
+  display      : flex;
+  align-items  : center;
+  gap          : 1rem;
+  padding      : 1rem 1.25rem;
+  background   : var(--surface);
+  border       : 1.5px solid var(--border);
+  border-radius: var(--radius);
+  transition   : border-color 0.15s;
+}
+.pj-patient-item:hover { border-color: #D6D3D1; }
+
+.pj-avatar {
+  flex-shrink    : 0;
+  width          : 2.5rem;
+  height         : 2.5rem;
+  border-radius  : 50%;
+  background     : var(--primary-bg);
+  color          : var(--primary);
+  border         : 1.5px solid var(--primary-border);
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  font-size      : 0.75rem;
+  font-weight    : 700;
+  font-family    : "Plus Jakarta Sans", sans-serif;
+  letter-spacing : 0.02em;
+  user-select    : none;
+}
+
+/* ── Status block (dashboard) ────────────────────────────────────── */
+.pj-status-block {
+  display      : flex;
+  align-items  : center;
+  gap          : 1rem;
+  padding      : 1.25rem 1.5rem;
+  border-radius: var(--radius);
+  border       : 1.5px solid;
+}
+
+.pj-status-block--normal {
+  background  : var(--green-bg);
+  border-color: var(--green-border);
+  color       : var(--green);
+}
+.pj-status-block--warn {
+  background  : var(--amber-bg);
+  border-color: var(--amber-border);
+  color       : var(--amber);
+}
+.pj-status-block--danger {
+  background  : var(--primary-bg);
+  border-color: var(--primary-border);
+  color       : var(--primary);
+}
+
+.pj-status-block__dot {
+  flex-shrink  : 0;
+  width        : 10px;
+  height       : 10px;
+  border-radius: 50%;
+  background   : currentColor;
+}
+
+.pj-status-block__label {
+  font-family  : "Plus Jakarta Sans", sans-serif;
+  font-weight  : 700;
+  font-size    : 0.9375rem;
+  line-height  : 1.2;
+}
+
+.pj-status-block__note {
+  font-size  : 0.8125rem;
+  opacity    : 0.8;
+  margin-top : 0.15rem;
+  line-height: 1.4;
+}
+
+/* ── Metric card ─────────────────────────────────────────────────── */
+.pj-metric-card {
+  background   : var(--surface);
+  border       : 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding      : 1.25rem 1.5rem;
+}
+
+.pj-metric-card__label {
+  font-size  : 0.78rem;
+  color      : var(--muted);
+  font-weight: 500;
+  margin-bottom: 0.35rem;
+}
+
+.pj-metric-card__value {
+  font-family  : "Plus Jakarta Sans", sans-serif;
+  font-size    : 2rem;
+  font-weight  : 800;
+  line-height  : 1;
+  color        : var(--text);
+  letter-spacing: -0.03em;
+}
+
+.pj-metric-card__unit {
+  font-size  : 0.8rem;
+  font-weight: 500;
+  color      : var(--muted);
+  margin-left: 0.2rem;
+}
+
+/* ── Section title (inside content, not page header) ─────────────── */
+.pj-section-title {
+  font-family  : "Plus Jakarta Sans", sans-serif;
+  font-size    : 1rem;
+  font-weight  : 700;
+  color        : var(--text);
+  margin       : 0 0 1rem;
+  letter-spacing: -0.01em;
+}
+
+/* ── Table ───────────────────────────────────────────────────────── */
+.pj-table {
+  width          : 100%;
+  border-collapse: collapse;
+  font-size      : 0.875rem;
+}
+
+.pj-table thead th {
+  text-align  : left;
+  padding     : 0.5rem 0.75rem;
+  font-size   : 0.75rem;
+  font-weight : 600;
+  color       : var(--subtle);
+  border-bottom: 1px solid var(--border);
+  white-space : nowrap;
+}
+
+.pj-table tbody td {
+  padding     : 0.75rem;
+  border-bottom: 1px solid #F5F5F4;
+  color       : var(--text);
+  white-space : nowrap;
+}
+
+.pj-table tbody tr:last-child td { border-bottom: none; }
+
+.pj-table tbody tr:hover td { background: var(--bg); }
+
+/* Inline status pill in table */
+.pj-pill {
+  display      : inline-flex;
+  align-items  : center;
+  padding      : 0.15rem 0.55rem;
+  border-radius: 999px;
+  font-size    : 0.72rem;
+  font-weight  : 600;
+  line-height  : 1.5;
+}
+.pj-pill--normal { background: var(--green-bg);   color: var(--green);  border: 1px solid var(--green-border); }
+.pj-pill--warn   { background: var(--amber-bg);   color: var(--amber);  border: 1px solid var(--amber-border); }
+.pj-pill--danger { background: var(--primary-bg); color: var(--primary); border: 1px solid var(--primary-border); }
+
+/* ── Chat bubbles ─────────────────────────────────────────────────── */
+.pj-bubble-row {
+  display : flex;
+  gap     : 0.6rem;
+  max-width: 80%;
+}
+.pj-bubble-row--ai   { align-self: flex-start; }
+.pj-bubble-row--user { align-self: flex-end; flex-direction: row-reverse; }
+
+.pj-bubble-avatar {
+  flex-shrink    : 0;
+  width          : 1.75rem;
+  height         : 1.75rem;
+  border-radius  : 50%;
+  background     : var(--primary-bg);
+  color          : var(--primary);
+  border         : 1px solid var(--primary-border);
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  font-size      : 0.55rem;
+  font-weight    : 700;
+  font-family    : "Plus Jakarta Sans", sans-serif;
+  user-select    : none;
+  align-self     : flex-end;
+}
+
+.pj-bubble-body {
+  padding      : 0.7rem 1rem;
+  border-radius: 1.15rem;
+  font-size    : 0.9rem;
+  line-height  : 1.55;
+  max-width    : 100%;
+}
+
+.pj-bubble-row--ai .pj-bubble-body {
+  background              : var(--surface);
+  border                  : 1.5px solid var(--border);
+  border-bottom-left-radius: 4px;
+  color                   : var(--text);
+}
+
+.pj-bubble-row--user .pj-bubble-body {
+  background               : var(--primary);
+  color                    : #fff;
+  border-bottom-right-radius: 4px;
+}
+
+.pj-bubble-time {
+  font-size  : 0.65rem;
+  opacity    : 0.5;
+  margin-top : 0.25rem;
+}
+
+/* ── Typing indicator ─────────────────────────────────────────────── */
+.pj-typing {
+  display    : flex;
+  align-items: center;
+  gap        : 3px;
+  padding    : 0.15rem 0;
+}
+.pj-typing span {
+  display         : block;
+  width           : 6px;
+  height          : 6px;
+  border-radius   : 50%;
+  background      : var(--subtle);
+  animation       : pj-bounce 1.2s infinite ease-in-out;
+}
+.pj-typing span:nth-child(2) { animation-delay: 0.15s; }
+.pj-typing span:nth-child(3) { animation-delay: 0.30s; }
+
+@keyframes pj-bounce {
+  0%,80%,100% { transform: translateY(0); opacity: 0.4; }
+  40%         { transform: translateY(-5px); opacity: 1; }
+}
+
+/* ── Chat input ───────────────────────────────────────────────────── */
+.pj-chat-input {
+  flex       : 1;
+  resize     : none;
+  padding    : 0.65rem 1rem;
+  font-size  : 0.9375rem;
+  font-family: inherit;
+  color      : var(--text);
+  background : var(--bg);
+  border     : 1.5px solid var(--border);
+  border-radius: 999px;
+  outline    : none;
+  line-height: 1.5;
+  min-height : 2.75rem;
+  max-height : 8rem;
+  overflow-y : auto;
+  transition : border-color 0.15s, box-shadow 0.15s;
+}
+.pj-chat-input:focus {
+  border-color: var(--primary);
+  box-shadow  : 0 0 0 3px rgba(155,27,27,0.1);
+  background  : #fff;
+}
+
+/* ── Back link ────────────────────────────────────────────────────── */
+.pj-back {
+  display        : inline-flex;
+  align-items    : center;
+  gap            : 0.3rem;
+  font-size      : 0.875rem;
+  font-weight    : 500;
+  color          : var(--muted);
+  text-decoration: none;
+  transition     : color 0.15s;
+  margin-bottom  : 1.25rem;
+}
+.pj-back:hover { color: var(--text); }
+
+/* ── Dashboard patient header row ───────────────────────────────── */
+.pj-patient-hdr {
+  display    : flex;
+  align-items: center;
+  gap        : var(--space-4);
+}
+.pj-patient-hdr__info {
+  font-size : 0.875rem;
+  color     : var(--muted);
+  margin    : 0;
+}
+
+/* Avatar large variant ──────────────────────────────────────────── */
+.pj-avatar--lg {
+  width    : 3rem;
+  height   : 3rem;
+  font-size: 0.875rem;
+}
+
+/* ── Metric card: timestamp value ────────────────────────────────── */
+.pj-metric-card__timestamp {
+  font-family  : "Plus Jakarta Sans", sans-serif;
+  font-size    : 0.9375rem;
+  font-weight  : 700;
+  color        : var(--text);
+  line-height  : 1.3;
+  margin-top   : 0.2rem;
+}
+
+/* ── Card header row (title + action button) ─────────────────────── */
+.pj-card-header-row {
+  display        : flex;
+  align-items    : center;
+  justify-content: space-between;
+  margin-bottom  : var(--space-4);
+}
+
+/* ── Table wrapper ───────────────────────────────────────────────── */
+.pj-table-wrap {
+  overflow-x: auto;
+  margin    : 0 -0.25rem;
+}
+
+/* ── Form server-error box ───────────────────────────────────────── */
+.pj-form-error {
+  margin-bottom: var(--space-4);
+  padding      : 0.75rem var(--space-4);
+  background   : var(--primary-bg);
+  border       : 1px solid var(--primary-border);
+  border-radius: var(--radius-sm);
+  font-size    : 0.85rem;
+  color        : #991B1B;
+}
+
+/* ── Count badge (patient list) ──────────────────────────────────── */
+.pj-count-badge {
+  font-size  : 0.78rem;
+  color      : var(--muted);
+  font-weight: 500;
+}
+
+/* ── Patient list container ──────────────────────────────────────── */
+.pj-patient-list {
+  display       : flex;
+  flex-direction: column;
+  gap           : 0.625rem;
+}
+
+/* ── State: empty / error centred block ──────────────────────────── */
+.pj-state-center {
+  padding   : 2.5rem 0;
+  text-align: center;
+}
+.pj-state-center__text {
+  color    : var(--muted);
+  font-size: 0.9rem;
+  margin   : 0;
+}
+.pj-state-center__btn {
+  margin-top: var(--space-3);
+}
+
+/* ── Toast ────────────────────────────────────────────────────────── */
+.pj-toast {
+  display     : none;
+  margin-top  : 0.875rem;
+  padding     : 0.7rem 1rem;
+  background  : var(--green-bg);
+  border      : 1px solid var(--green-border);
+  border-radius: var(--radius-sm);
+  font-size   : 0.85rem;
+  color       : var(--green);
+}
+.pj-toast.visible { display: block; }
+
+/* ── Footer ───────────────────────────────────────────────────────── */
+.pj-footer {
+  flex-shrink: 0;                    /* never squeezed in flex column */
+  border-top : 1px solid var(--border);
+  padding    : var(--space-5);
+  text-align : center;
+  font-size  : 0.8rem;
+  color      : var(--subtle);
+}
+
+/* ── Divider ──────────────────────────────────────────────────────── */
+.pj-divider {
+  border    : none;
+  border-top: 1px solid var(--border);
+  margin    : 1.5rem 0;
+}
+
+/* ── Skeleton pulse animation (shared across all pages) ──────────── */
+@keyframes pj-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.45; }
+}
+
+/* ── Chat-page full-height shell (shared; removes inline style need) */
+body.pj-chat-page        { min-height: 100vh; }
+/* .pj-chat-outer is a flex:1 container; inner .chat-layout provides the grid */
+.pj-chat-outer { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+
+/* ── Reduced motion ───────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .pj-typing span { animation: none; }
+  html { scroll-behavior: auto; }
+  .pj-mobile-menu { transition: none; }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   NAVBAR — HAMBURGER + MOBILE MENU
+   Single show/hide mechanism: max-height only (no display toggling).
+   ════════════════════════════════════════════════════════════════════ */
+
+/* Hamburger: always in DOM, visibility controlled by media query */
+.pj-nav__hamburger {
+  display        : none;          /* hidden by default on desktop */
+  align-items    : center;
+  justify-content: center;
+  flex-direction : column;
+  gap            : 5px;
+  width          : 44px;          /* minimum touch target */
+  height         : 44px;
+  padding        : 0;
+  background     : none;
+  border         : 1.5px solid var(--border);
+  border-radius  : 0.625rem;
+  cursor         : pointer;
+  flex-shrink    : 0;
+}
+
+.pj-nav__hamburger span {
+  display         : block;
+  width           : 18px;
+  height          : 2px;
+  background      : var(--text);
+  border-radius   : 2px;
+  transition      : transform 0.22s ease, opacity 0.18s ease, width 0.18s ease;
+  transform-origin: center;
+}
+
+/* Hamburger → X */
+.pj-nav__hamburger[aria-expanded="true"] span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.pj-nav__hamburger[aria-expanded="true"] span:nth-child(2) {
+  opacity  : 0;
+  width    : 0;
+}
+.pj-nav__hamburger[aria-expanded="true"] span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/*
+ * Mobile menu panel.
+ * Uses max-height + overflow:hidden for smooth slide.
+ * Always display:flex so the transition works — visibility
+ * is controlled purely by max-height / padding.
+ * Hidden on desktop via media query.
+ */
+.pj-mobile-menu {
+  display        : flex;
+  flex-direction : column;
+  gap            : 0.25rem;
+  background     : #ffffff;
+  border-top     : 1px solid var(--border);
+  overflow       : hidden;
+  /* closed state */
+  max-height     : 0;
+  padding-top    : 0;
+  padding-bottom : 0;
+  padding-left   : 1rem;
+  padding-right  : 1rem;
+  transition     : max-height 0.28s ease, padding-top 0.28s ease, padding-bottom 0.28s ease;
+}
+
+.pj-mobile-menu.open {
+  max-height     : 320px;
+  padding-top    : 0.625rem;
+  padding-bottom : 1rem;
+}
+
+.pj-mobile-menu__link {
+  display        : block;
+  padding        : 0.8rem 0.875rem;
+  border-radius  : 0.75rem;
+  font-size      : 1rem;           /* 16px — comfortable tap target */
+  font-weight    : 600;
+  color          : var(--text);
+  text-decoration: none;
+  transition     : background 0.12s, color 0.12s;
+  /* minimum touch height */
+  min-height     : 48px;
+  display        : flex;
+  align-items    : center;
+}
+
+.pj-mobile-menu__link:active {
+  background: var(--bg);
+  color     : var(--primary);
+}
+
+.pj-mobile-menu__link--active {
+  color     : var(--primary);
+  background: var(--primary-bg);
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   RESPONSIVE — MOBILE-FIRST ADJUSTMENTS
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── Mobile (≤ 600px) ────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  /* Navbar inner: tighter horizontal padding */
+  .pj-nav__inner {
+    height : 56px;
+    padding: 0 1rem;
+  }
+
+  /* Show hamburger, hide desktop links */
+  .pj-nav__hamburger { display: flex; }
+  .pj-nav__links     { display: none; }
+
+  /* Container */
+  .pj-container {
+    padding-left : 1rem;
+    padding-right: 1rem;
+  }
+
+  /* Page header */
+  .pj-page-header {
+    padding-top   : 1.75rem;
+    padding-bottom: 1.5rem;
+  }
+
+  /* Cards */
+  .pj-card {
+    padding      : 1.125rem;
+    border-radius: 1rem;
+  }
+
+  /* Metric card */
+  .pj-metric-card        { padding: 0.875rem 1rem; }
+  .pj-metric-card__value { font-size: 1.5rem; }
+
+  /* Heading */
+  .pj-h1 { font-size: 1.5rem; }
+
+  /* Patient item */
+  .pj-patient-item {
+    flex-wrap: wrap;
+    gap      : 0.75rem;
+    padding  : 0.875rem 1rem;
+  }
+
+  /* Full-width button helper */
+  .pj-btn--block-mobile {
+    width          : 100%;
+    justify-content: center;
+  }
+
+  /* Chat bubbles */
+  .pj-bubble-row { max-width: 90%; }
+
+  /* Status block */
+  .pj-status-block { gap: 0.75rem; }
+
+  /* Table */
+  .pj-table               { font-size: 0.8rem; }
+  .pj-table thead th,
+  .pj-table tbody td      { padding: 0.55rem 0.5rem; }
+
+  /* Page header */
+  .pj-page-header { padding-top: 1.75rem; padding-bottom: var(--space-5); }
+
+  /* Footer */
+  .pj-footer { padding: var(--space-4); font-size: 0.75rem; }
+}
+
+/* ── Medium: metric cards 2-col (480–767px) ─────────────────────── */
+@media (min-width: 480px) and (max-width: 767px) {
+  .pj-metric-grid { grid-template-columns: repeat(2, 1fr) !important; }
+}
+
+/* ── Desktop (≥ 601px): restore nav, hide hamburger + mobile menu ── */
+@media (min-width: 601px) {
+  .pj-nav__inner     { height: 64px; padding: 0 1.5rem; }
+  .pj-nav__links     { display: flex; }
+  .pj-nav__hamburger { display: none; }
+  /* Force closed — override any .open class that might linger */
+  .pj-mobile-menu    {
+    max-height    : 0 !important;
+    padding-top   : 0 !important;
+    padding-bottom: 0 !important;
+    pointer-events: none;
+  }
+}
+
+/* ── Two-column index layout ─────────────────────────────────────── */
+.pj-index-grid {
+  display              : grid;
+  grid-template-columns: 1fr;
+  gap                  : var(--space-5);
+  align-items          : start;
+  padding-bottom       : var(--space-6);
+}
+
+@media (min-width: 900px) {
+  .pj-index-grid { grid-template-columns: 400px 1fr; }
+
+  /* Sticky form column — sticks below navbar (64px desktop) + 1rem gap */
+  .pj-form-sticky {
+    position: sticky;
+    top     : calc(64px + var(--space-4));
+  }
+}
+
+/* ── Patient list header row ─────────────────────────────────────── */
+.pj-list-header {
+  display        : flex;
+  align-items    : center;
+  justify-content: space-between;
+  margin-bottom  : var(--space-4);
+}
+
+/* ── Patient item inner layout ───────────────────────────────────── */
+.pj-patient-info {
+  flex    : 1;
+  min-width: 0;
+}
+.pj-patient-info__name {
+  font-weight  : 600;
+  font-size    : 0.9375rem;
+  margin       : 0;
+  white-space  : nowrap;
+  overflow     : hidden;
+  text-overflow: ellipsis;
+}
+.pj-patient-info__meta {
+  font-size : 0.8125rem;
+  color     : var(--muted);
+  margin    : 0.1rem 0 0;
+}
+.pj-patient-actions {
+  display   : flex;
+  gap       : var(--space-2);
+  flex-shrink: 0;
+}
+
+/* ── Loading skeleton list ───────────────────────────────────────── */
+.pj-skeleton-list {
+  display       : flex;
+  flex-direction: column;
+  gap           : 0.625rem;
+}
+.pj-skeleton-item {
+  height       : 4.5rem;
+  border-radius: var(--radius);
+  background   : #F5F5F4;
+  animation    : pj-pulse 1.4s ease-in-out infinite;
+}
+
+/* ── Three metric cards ──────────────────────────────────────────── */
+.pj-metric-grid {
+  display              : grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap                  : var(--space-4);
+  margin-bottom        : var(--space-5);
+}
+
+@media (max-width: 479px) {
+  .pj-metric-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Section spacing inside dashboard content ────────────────────── */
+.pj-section-gap { margin-bottom: var(--space-5); }
+
+/* ════════════════════════════════════════════════════════════════════
+   CHAT PAGE — full-screen app layout
+   Activated when <body class="chat-page"> is present.
+   ════════════════════════════════════════════════════════════════════ */
+
+/*
+ * Nav heights (mirrors .pj-nav__inner heights):
+ *   mobile  (≤ 600px) : 56px
+ *   desktop (≥ 601px) : 64px
+ * We use a CSS var so every calc() stays DRY.
+ */
+:root {
+  --nav-h: 64px;
+}
+@media (max-width: 600px) {
+  :root { --nav-h: 56px; }
+}
+
+/* ── Body shell — no overflow so the inner feed scrolls, not the page ── */
+body.chat-page {
+  overflow: hidden;
+}
+
+/* ── Outer flex row: fills remaining viewport below nav ─────────────── */
+.chat-page__body {
+  display   : flex;
+  flex-direction: row;
+  height    : calc(100vh - var(--nav-h));
+  /* no padding — flush to edges */
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   SIDEBAR
+   ══════════════════════════════════════════════════════════════════════ */
+.chat-sidebar {
+  flex-shrink    : 0;
+  width          : 260px;
+  display        : flex;
+  flex-direction : column;
+  background     : var(--surface);
+  border-right   : 1px solid var(--border);
+  overflow       : hidden;
+  transition     : width 0.22s ease;
+}
+
+/* Sidebar hidden: collapse to zero, contents invisible */
+.chat-page__body.sidebar-closed .chat-sidebar {
+  width: 0;
+}
+
+/* Head area: "Percakapan Baru" button */
+.chat-sidebar__head {
+  flex-shrink: 0;
+  padding    : 0.875rem 1rem 0.75rem;
+}
+
+.chat-sidebar__new-btn {
+  display        : flex;
+  align-items    : center;
+  gap            : 0.5rem;
+  width          : 100%;
+  padding        : 0.55rem 0.875rem;
+  background     : var(--primary-bg);
+  color          : var(--primary);
+  border         : 1px solid var(--primary-border);
+  border-radius  : var(--radius-sm);
+  font-family    : inherit;
+  font-size      : 0.8125rem;
+  font-weight    : 600;
+  cursor         : pointer;
+  white-space    : nowrap;
+  transition     : background 0.15s, border-color 0.15s;
+}
+.chat-sidebar__new-btn:hover {
+  background  : #FEE2E2;
+  border-color: var(--primary);
+}
+
+/* Scrollable list area */
+.chat-sidebar__list {
+  flex      : 1;
+  min-height: 0;          /* allow flex child to shrink below content size */
+  overflow-y: auto;
+  overflow-x: hidden;     /* no horizontal scrollbar */
+  padding   : 0 0.5rem 1rem;
+  display   : flex;
+  flex-direction: column;
+  gap       : 1px;
+}
+
+/* Group label (Hari ini / Kemarin / etc.) */
+.chat-sidebar__group-label {
+  font-size    : 0.68rem;
+  font-weight  : 600;
+  color        : var(--subtle);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding      : 0.75rem 0.5rem 0.25rem;
+  user-select  : none;
+}
+
+/* Individual conversation row */
+.chat-sidebar__item {
+  display       : flex;
+  flex-direction: column;
+  gap           : 0.1rem;
+  padding       : 0.55rem 0.625rem;
+  border-radius : var(--radius-sm);
+  cursor        : pointer;
+  border        : none;
+  background    : transparent;
+  text-align    : left;
+  width         : 100%;
+  transition    : background 0.12s;
+  /* removed overflow:hidden — title wraps instead of being clipped */
+  min-width     : 0;      /* allow flex item to shrink */
+}
+.chat-sidebar__item:hover {
+  background: var(--bg);
+}
+.chat-sidebar__item--active,
+.chat-sidebar__item.active {
+  background: var(--primary-bg) !important;
+}
+
+.chat-sidebar__item-title {
+  font-size       : 0.8125rem;
+  font-weight     : 500;
+  color           : var(--text);
+  /* wrap up to 2 lines, then ellipsis — no horizontal clipping */
+  display         : -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp      : 2;
+  -webkit-box-orient: vertical;
+  overflow        : hidden;
+  overflow-wrap   : anywhere;
+  word-break      : break-word;
+  line-height     : 1.4;
+}
+.chat-sidebar__item--active .chat-sidebar__item-title,
+.chat-sidebar__item.active .chat-sidebar__item-title {
+  color      : var(--primary);
+  font-weight: 600;
+}
+
+.chat-sidebar__item-time {
+  font-size  : 0.7rem;
+  color      : var(--subtle);
+  white-space: nowrap;   /* date/time stays on one line, never clipped */
+  flex-shrink: 0;
+}
+
+/* Empty state */
+.chat-sidebar__empty {
+  padding  : 1.5rem 0.75rem;
+  font-size: 0.8125rem;
+  color    : var(--subtle);
+  text-align: center;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   MOBILE SCRIM — overlay behind sidebar on narrow screens
+   ══════════════════════════════════════════════════════════════════════ */
+.chat-scrim {
+  position  : fixed;
+  inset     : 0;
+  background: rgba(0,0,0,0.3);
+  z-index   : 90;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   CHAT MAIN — takes all remaining width
+   ══════════════════════════════════════════════════════════════════════ */
+.chat-main {
+  flex      : 1;
+  display   : flex;
+  flex-direction: column;
+  background: var(--bg);
+  overflow  : hidden;
+  min-width : 0;
+}
+
+/* ── Header — slim single row ──────────────────────────────────────── */
+.chat-header {
+  flex-shrink    : 0;
+  display        : flex;
+  align-items    : center;
+  justify-content: space-between;
+  height         : 48px;
+  padding        : 0 1rem;
+  background     : var(--surface);
+  border-bottom  : 1px solid var(--border);
+  gap            : 0.5rem;
+}
+
+.chat-header__left {
+  display    : flex;
+  align-items: center;
+  gap        : 0.5rem;
+  min-width  : 0;
+  flex       : 1;
+}
+
+.chat-header__right {
+  flex-shrink: 0;
+  display    : flex;
+  align-items: center;
+  gap        : 0.5rem;
+}
+
+/* Icon button for sidebar toggle */
+.sidebar-toggle {
+  flex-shrink    : 0;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  width          : 32px;
+  height         : 32px;
+  padding        : 0;
+  background     : transparent;
+  border         : none;
+  border-radius  : var(--radius-sm);
+  color          : var(--muted);
+  cursor         : pointer;
+  transition     : background 0.12s, color 0.12s;
+}
+.sidebar-toggle:hover {
+  background: var(--bg);
+  color     : var(--text);
+}
+
+/* ← Pasien link */
+.chat-header__back {
+  display        : inline-flex;
+  align-items    : center;
+  gap            : 0.2rem;
+  font-size      : 0.78rem;
+  font-weight    : 500;
+  color          : var(--muted);
+  text-decoration: none;
+  white-space    : nowrap;
+  flex-shrink    : 0;
+  transition     : color 0.12s;
+}
+.chat-header__back:hover { color: var(--primary); }
+
+/* Patient name / title */
+.chat-header__title {
+  font-family  : "Plus Jakarta Sans", sans-serif;
+  font-size    : 0.875rem;
+  font-weight  : 700;
+  color        : var(--text);
+  white-space  : nowrap;
+  overflow     : hidden;
+  text-overflow: ellipsis;
+}
+
+/* Subtitle (hidden by default, shown by JS when patient loaded) */
+.chat-header__sub {
+  font-size : 0.75rem;
+  color     : var(--muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   CHAT FEED — scrollable message area
+   ══════════════════════════════════════════════════════════════════════ */
+.chat-feed {
+  flex      : 1;
+  overflow-y: auto;
+  padding   : 1.5rem 1rem 0.5rem;
+  /* centre a column of messages, capped at 760px */
+  display   : flex;
+  flex-direction: column;
+  align-items: center;        /* centre children horizontally */
+  gap       : 0.75rem;
+}
+
+/* Each bubble row stretches to fill the centred column */
+.chat-feed > * {
+  width    : 100%;
+  max-width: 760px;
+  box-sizing: border-box;
+}
+
+/* Typing indicator row (inside feed, same alignment as AI) */
+.chat-typing-row {
+  align-self: flex-start;
+}
+
+/* Typing bubble: plain — no border, transparent bg */
+.chat-page .chat-typing-body,
+.chat-page .pj-bubble-row--ai .pj-bubble-body {
+  background  : transparent;
+  border      : none;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   CHAT INPUT BAR — floating bottom strip
+   ══════════════════════════════════════════════════════════════════════ */
+.chat-input-bar {
+  flex-shrink: 0;
+  padding    : 0.75rem 1rem 0.875rem;
+  background : var(--bg);
+  /* centre the box */
+  display    : flex;
+  flex-direction: column;
+  align-items: center;
+  gap        : 0.375rem;
+}
+
+/* The rounded input box */
+.chat-input-box {
+  width        : 100%;
+  max-width    : 760px;
+  background   : var(--surface);
+  border       : 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow   : 0 1px 6px rgba(0,0,0,0.06);
+  transition   : border-color 0.15s, box-shadow 0.15s;
+}
+.chat-input-box:focus-within {
+  border-color: var(--primary);
+  box-shadow  : 0 0 0 3px rgba(155,27,27,0.08);
+}
+
+/* Form row inside the box */
+.chat-input-box__form {
+  display    : flex;
+  align-items: flex-end;
+  gap        : 0.5rem;
+  padding    : 0.5rem 0.5rem 0.5rem 0.875rem;
+}
+
+/* Textarea — no own border, fills box */
+.chat-input-box__textarea {
+  flex       : 1;
+  resize     : none;
+  border     : none;
+  outline    : none;
+  background : transparent;
+  font-family: inherit;
+  font-size  : 0.9375rem;
+  color      : var(--text);
+  line-height: 1.5;
+  min-height : 2.25rem;
+  max-height : 8rem;
+  overflow-y : auto;
+  padding    : 0.35rem 0;
+}
+.chat-input-box__textarea::placeholder { color: var(--subtle); }
+
+/* Send button inside box */
+.chat-input-box__send {
+  flex-shrink  : 0;
+  padding      : 0.45rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size    : 0.8125rem;
+  align-self   : flex-end;
+  margin-bottom: 0.1rem;
+}
+
+/* Disclaimer text */
+.chat-input-bar__disclaimer {
+  width    : 100%;
+  max-width: 760px;
+  font-size: 0.8rem;
+  color    : var(--primary);
+  text-align: center;
+  margin   : 0;
+  line-height: 1.4;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   MOBILE OVERRIDES (≤ 699px)
+   ══════════════════════════════════════════════════════════════════════ */
+@media (max-width: 699px) {
+  /* Sidebar becomes a fixed overlay panel */
+  .chat-sidebar {
+    position  : fixed;
+    left      : 0;
+    top       : var(--nav-h);
+    bottom    : 0;
+    z-index   : 95;
+    width     : 280px;
+    box-shadow: 4px 0 16px rgba(0,0,0,0.12);
+    /* start hidden */
+    transform : translateX(-100%);
+    transition: transform 0.22s ease;
+  }
+
+  /* sidebar-closed: JS adds this class on narrow; sidebar starts hidden */
+  .chat-page__body.sidebar-closed .chat-sidebar {
+    width    : 280px;        /* keep width; translate out instead */
+    transform: translateX(-100%);
+  }
+
+  /* When sidebar is open on mobile (JS removes sidebar-closed) */
+  .chat-page__body:not(.sidebar-closed) .chat-sidebar {
+    transform: translateX(0);
+  }
+
+  /* Chat main always full width on mobile */
+  .chat-main { width: 100%; }
+
+  /* Tighter input bar */
+  .chat-input-bar { padding: 0.5rem 0.75rem 0.625rem; }
+
+  /* Wider bubbles on small screens */
+  .chat-feed > * { max-width: 100%; }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   DASHBOARD — measurement card + charts layout
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── Top row of measurement card: title+hint left, button right ───── */
+.pj-ukur-header {
+  display        : flex;
+  align-items    : center;
+  justify-content: space-between;
+  gap            : var(--space-4);
+}
+
+.pj-ukur-header__left {
+  flex    : 1;
+  min-width: 0;
+}
+
+/* On narrow screens: stack vertically, button full width */
+@media (max-width: 540px) {
+  .pj-ukur-header         { flex-direction: column; align-items: stretch; }
+  .pj-ukur-header__btn    { width: 100%; justify-content: center; }
+}
+
+/* ── Status messages inside measurement card ─────────────────────── */
+/* Each <p> shrinks to zero height when empty (no :empty hack needed
+   because the browser collapses a margin-less empty block) */
+.pj-ukur-msg {
+  font-size  : 0.875rem;
+  color      : var(--muted);
+  margin     : 0;
+  line-height: 1.4;
+}
+
+.pj-ukur-msg:not(:empty) {
+  margin-top: var(--space-3);
+}
+
+/* ── Simulation panel — border-top lives here so it disappears
+   automatically when JS sets display:none ────────────────────────── */
+.pj-sim-panel {
+  border-top : 1px solid var(--border);
+  margin-top : var(--space-4);
+  padding-top: var(--space-4);
+}
+
+/* ── Two-column grid inside simulation panel ─────────────────────── */
+.pj-sim-cols {
+  display              : grid;
+  grid-template-columns: 1fr 1fr;
+  gap                  : var(--space-5);
+}
+
+@media (max-width: 600px) {
+  .pj-sim-cols { grid-template-columns: 1fr; }
+}
+
+/* ── Shared sub-section title row (title + badge) ────────────────── */
+.pj-ukur-section__head {
+  display      : flex;
+  align-items  : center;
+  gap          : 0.5rem;
+  flex-wrap    : wrap;
+  margin-bottom: var(--space-3);
+}
+
+/* ── Sub-section title text ─────────────────────────────────────── */
+.pj-ukur-section__title {
+  font-size  : 0.8125rem;
+  font-weight: 600;
+  color      : var(--text);
+  margin     : 0;
+  flex       : 1;
+}
+
+/* ── Hint / description text ────────────────────────────────────── */
+.pj-ukur-section__hint {
+  font-size  : 0.8rem;
+  color      : var(--muted);
+  margin     : 0;
+  line-height: 1.5;
+}
+
+/* ── "Data contoh" badge ─────────────────────────────────────────── */
+.pj-sim-badge {
+  display      : inline-flex;
+  align-items  : center;
+  font-size    : 0.72rem;
+  font-weight  : 600;
+  padding      : 0.2rem 0.6rem;
+  border-radius: 999px;
+  background   : var(--amber-bg);
+  color        : var(--amber);
+  border       : 1px solid var(--amber-border);
+  white-space  : nowrap;
+  flex-shrink  : 0;
+}
+
+/* ── Charts: side-by-side ≥ 900px, single column below ─────────────
+   (replaces the old pj-dashboard-charts rule which had no margin) */
+.pj-dashboard-charts {
+  display              : grid;
+  grid-template-columns: 1fr;
+  gap                  : var(--space-5);
+}
+
+@media (min-width: 900px) {
+  .pj-dashboard-charts { grid-template-columns: 1fr 1fr; }
+}
+
+/* Chart canvas height — slightly reduced to 220px */
+.pj-chart-wrap {
+  position: relative;
+  height  : 220px;
+}

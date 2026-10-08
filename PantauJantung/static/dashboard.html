@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PantauJantung — Dashboard</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+
+<body>
+
+  <!-- ── Navbar ──────────────────────────────────────────────────── -->
+  <nav class="pj-nav">
+    <div class="pj-nav__inner">
+      <a href="/" class="pj-nav__logo">
+        <span class="pj-nav__logo-heart">♥</span>
+        PantauJantung
+      </a>
+      <ul class="pj-nav__links">
+        <li><a href="/" class="pj-nav__link">Pasien</a></li>
+        <li><a href="/dashboard.html" class="pj-nav__link pj-nav__link--active">Dashboard</a></li>
+        <li><a href="/chat.html" class="pj-nav__link">Asisten AI</a></li>
+      </ul>
+      <button id="pj-hamburger" class="pj-nav__hamburger"
+              aria-expanded="false" aria-controls="pj-mobile-menu"
+              aria-label="Buka menu" type="button">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div id="pj-mobile-menu" class="pj-mobile-menu">
+      <a href="/" class="pj-mobile-menu__link">Pasien</a>
+      <a href="/dashboard.html" class="pj-mobile-menu__link pj-mobile-menu__link--active">Dashboard</a>
+      <a href="/chat.html" class="pj-mobile-menu__link">Asisten AI</a>
+    </div>
+  </nav>
+
+  <!-- ── Main ────────────────────────────────────────────────────── -->
+  <main>
+    <div class="pj-container pj-page-top">
+
+      <!-- Back link -->
+      <div>
+        <a href="/" class="pj-back">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Kembali ke pasien
+        </a>
+      </div>
+
+      <!-- ── Error: pasien tidak ditemukan ────────────────────────── -->
+      <div id="notFoundBlock" style="display:none;padding:3rem 0;text-align:center;">
+        <p style="font-size:1.1rem;font-weight:600;color:var(--text);margin-bottom:0.5rem;">Pasien tidak ditemukan</p>
+        <p style="color:var(--muted);font-size:0.875rem;margin-bottom:1.5rem;">ID pasien tidak valid atau data tidak tersedia.</p>
+        <a href="/" class="pj-btn pj-btn--primary">Kembali ke daftar pasien</a>
+      </div>
+
+      <!-- ── Error: gagal memuat ───────────────────────────────────── -->
+      <div id="loadErrorBlock" style="display:none;padding:3rem 0;text-align:center;">
+        <p style="font-size:1rem;font-weight:600;color:var(--text);margin-bottom:0.5rem;" id="loadErrMsg">Gagal memuat data.</p>
+        <button onclick="initDashboard()" class="pj-btn pj-btn--ghost pj-btn--sm" style="margin-top:0.75rem;">Coba lagi</button>
+      </div>
+
+      <!-- ── Loading skeleton ──────────────────────────────────────── -->
+      <div id="loadingBlock" style="padding-top:1rem;">
+        <div style="display:flex;align-items:center;gap:1rem;margin-bottom:2rem;">
+          <div style="width:3rem;height:3rem;border-radius:50%;background:#F5F5F4;animation:pj-pulse 1.4s ease-in-out infinite;flex-shrink:0;"></div>
+          <div style="flex:1;">
+            <div style="height:1.25rem;width:60%;border-radius:0.375rem;background:#F5F5F4;animation:pj-pulse 1.4s ease-in-out infinite;margin-bottom:0.5rem;"></div>
+            <div style="height:0.875rem;width:40%;border-radius:0.375rem;background:#F5F5F4;animation:pj-pulse 1.4s ease-in-out 0.15s infinite;"></div>
+          </div>
+        </div>
+        <div style="height:5rem;border-radius:0.875rem;background:#F5F5F4;animation:pj-pulse 1.4s ease-in-out infinite;margin-bottom:1.25rem;"></div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem;">
+          <div style="height:6rem;border-radius:0.875rem;background:#F5F5F4;animation:pj-pulse 1.4s ease-in-out infinite;"></div>
+          <div style="height:6rem;border-radius:0.875rem;background:#F5F5F4;animation:pj-pulse 1.4s ease-in-out 0.1s infinite;"></div>
+          <div style="height:6rem;border-radius:0.875rem;background:#F5F5F4;animation:pj-pulse 1.4s ease-in-out 0.2s infinite;"></div>
+        </div>
+        <div style="height:14rem;border-radius:0.875rem;background:#F5F5F4;animation:pj-pulse 1.4s ease-in-out infinite;margin-bottom:1.25rem;"></div>
+        <div style="height:12rem;border-radius:0.875rem;background:#F5F5F4;animation:pj-pulse 1.4s ease-in-out 0.1s infinite;"></div>
+      </div>
+
+      <!-- ── Content: ditampilkan setelah data berhasil dimuat ─────── -->
+      <div id="contentBlock" style="display:none;">
+
+        <!-- Patient identity -->
+        <div class="pj-patient-hdr pj-section-gap">
+          <div class="pj-avatar pj-avatar--lg" id="hdrAvatar"></div>
+          <div>
+            <h1 class="pj-h1" id="hdrNama" style="margin-bottom:0.1rem;"></h1>
+            <p id="hdrInfo" class="pj-patient-hdr__info"></p>
+          </div>
+        </div>
+
+        <!-- Status block -->
+        <div id="statusBlock" class="pj-status-block pj-section-gap">
+          <div class="pj-status-block__dot"></div>
+          <div>
+            <p class="pj-status-block__label" id="statusLabel"></p>
+            <p class="pj-status-block__note" id="statusNote"></p>
+          </div>
+        </div>
+
+        <!-- Metric cards -->
+        <div id="metricRow" class="pj-metric-grid" style="display:none;">
+          <div class="pj-metric-card">
+            <p class="pj-metric-card__label">Detak Jantung</p>
+            <p><span class="pj-metric-card__value" id="mBpm">—</span><span class="pj-metric-card__unit">bpm</span></p>
+          </div>
+          <div class="pj-metric-card">
+            <p class="pj-metric-card__label">Saturasi Oksigen</p>
+            <p><span class="pj-metric-card__value" id="mSpo2">—</span><span class="pj-metric-card__unit">%</span></p>
+          </div>
+          <div class="pj-metric-card">
+            <p class="pj-metric-card__label">Terakhir Diukur</p>
+            <p id="mTanggal" class="pj-metric-card__timestamp">—</p>
+          </div>
+        </div>
+
+        <!-- No data notice (shown when sensor is empty) -->
+        <div id="noDataBlock" class="pj-state-center pj-section-gap" style="display:none;">
+          <p class="pj-state-center__text">Belum ada pengukuran untuk pasien ini.</p>
+        </div>
+
+        <!-- ── Measurement card ──────────────────────────────────────── -->
+        <div class="pj-card pj-section-gap" id="measurePanel">
+
+          <!-- Top row: title+hint left, button right -->
+          <div class="pj-ukur-header">
+            <div class="pj-ukur-header__left">
+              <p class="pj-section-title" style="margin:0 0 0.25rem;">Pengukuran</p>
+              <p class="pj-ukur-section__hint">Letakkan jari di sensor, lalu data masuk otomatis dari alat.</p>
+            </div>
+            <button id="btnMulaiUkur" type="button" class="pj-btn pj-btn--primary pj-btn--sm pj-ukur-header__btn">
+              Mulai Pengukuran
+            </button>
+          </div>
+
+          <!-- Status messages — zero height when empty, no permanent gap -->
+          <p id="measureMsg" class="pj-ukur-msg"></p>
+          <p id="simMsg"     class="pj-ukur-msg"></p>
+
+          <!-- Simulation sections — controlled by JS via id="simPanel" -->
+          <!-- border-top lives on simPanel itself so it vanishes when hidden -->
+          <div id="simPanel" style="display:none;" class="pj-sim-panel">
+
+            <!-- Two-column sim grid -->
+            <div class="pj-sim-cols">
+
+              <!-- Col 1: Simulasi otomatis -->
+              <div>
+                <div class="pj-ukur-section__head">
+                  <p class="pj-ukur-section__title">Simulasi otomatis</p>
+                  <span class="pj-sim-badge">Data contoh — bukan dari sensor</span>
+                </div>
+                <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.5rem;">
+                  <button id="btnSimNormal"  type="button" class="pj-btn pj-btn--ghost pj-btn--sm">Normal</button>
+                  <button id="btnSimWaspada" type="button" class="pj-btn pj-btn--ghost pj-btn--sm">Waspada</button>
+                  <button id="btnSimTinggi"  type="button" class="pj-btn pj-btn--ghost pj-btn--sm">Tinggi</button>
+                </div>
+                <p class="pj-ukur-section__hint">Sistem membuat data contoh sesuai kondisi yang dipilih. Tidak perlu mengisi angka.</p>
+              </div>
+
+              <!-- Col 2: Isi manual -->
+              <div>
+                <div class="pj-ukur-section__head">
+                  <p class="pj-ukur-section__title">Isi manual</p>
+                  <span class="pj-sim-badge">Data contoh — bukan dari sensor</span>
+                </div>
+                <div style="display:flex;gap:0.75rem;align-items:flex-start;flex-wrap:wrap;margin-bottom:0.5rem;">
+                  <div style="display:flex;flex-direction:column;gap:0.25rem;">
+                    <label class="pj-label" style="font-size:0.75rem;" for="simBpmInput">BPM (20–220)</label>
+                    <input id="simBpmInput" type="number" min="20" max="220" step="1"
+                           class="pj-input" style="width:7.5rem;"
+                           placeholder="mis. 80" />
+                    <span id="simBpmErr" class="pj-field-error" style="display:block;min-height:1rem;"></span>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:0.25rem;">
+                    <label class="pj-label" style="font-size:0.75rem;" for="simSpo2Input">SpO₂ (50–100)</label>
+                    <input id="simSpo2Input" type="number" min="50" max="100" step="1"
+                           class="pj-input" style="width:7.5rem;"
+                           placeholder="mis. 98" />
+                    <span id="simSpo2Err" class="pj-field-error" style="display:block;min-height:1rem;"></span>
+                  </div>
+                  <div style="display:flex;align-items:flex-end;padding-bottom:1.5rem;">
+                    <button id="btnSimManual" type="button" class="pj-btn pj-btn--primary pj-btn--sm">Kirim</button>
+                  </div>
+                </div>
+                <p class="pj-ukur-section__hint">Masukkan angka sendiri untuk mencoba batas nilai.</p>
+              </div>
+
+            </div><!-- /pj-sim-cols -->
+          </div><!-- /simPanel -->
+
+        </div><!-- /measurePanel -->
+
+        <!-- Charts (shown only when sensor data exists) -->
+        <div id="chartsBlock" style="display:none;">
+          <div class="pj-dashboard-charts pj-section-gap">
+            <div class="pj-card">
+              <p class="pj-section-title">Riwayat Detak Jantung</p>
+              <div class="pj-chart-wrap">
+                <canvas id="chartBpm" aria-label="Grafik BPM" role="img"></canvas>
+              </div>
+            </div>
+            <div class="pj-card">
+              <p class="pj-section-title">Riwayat Saturasi Oksigen (SpO₂)</p>
+              <div class="pj-chart-wrap">
+                <canvas id="chartSpo2" aria-label="Grafik SpO2" role="img"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- History table -->
+        <div class="pj-card pj-section-gap">
+          <div class="pj-card-header-row">
+            <p class="pj-section-title" style="margin:0;">Riwayat Pengukuran</p>
+            <a id="linkChat" href="/chat.html" class="pj-btn pj-btn--ghost pj-btn--sm">Tanya Asisten AI</a>
+          </div>
+
+          <div id="tableWrap" class="pj-table-wrap" style="display:none;">
+            <table class="pj-table">
+              <thead>
+                <tr>
+                  <th>Tanggal</th>
+                  <th>BPM</th>
+                  <th>SpO₂</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="tabelBody"></tbody>
+            </table>
+          </div>
+
+          <div id="tableEmpty" class="pj-state-center">
+            <p class="pj-state-center__text">Belum ada riwayat pengukuran.</p>
+          </div>
+        </div>
+
+      </div><!-- /contentBlock -->
+
+    </div>
+  </main>
+
+  <footer class="pj-footer">© 2026 PantauJantung · Monitoring Kesehatan Jantung Berbasis IoT</footer>
+
+  <script src="/js/nav.js" defer></script>
+  <script>
+    // ── Helpers ───────────────────────────────────────────────────
+    function escapeHtml(s) {
+      return String(s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+    function initials(n) {
+      return String(n).trim().split(/\s+/).slice(0,2).map(w=>w[0].toUpperCase()).join('');
+    }
+    function statusCls(s) {
+      if (s === 'Normal')  return 'pj-status-block--normal';
+      if (s === 'Waspada') return 'pj-status-block--warn';
+      if (s === 'Tinggi')  return 'pj-status-block--danger';
+      return '';
+    }
+    function pillCls(s) {
+      if (s === 'Normal')  return 'pj-pill pj-pill--normal';
+      if (s === 'Waspada') return 'pj-pill pj-pill--warn';
+      if (s === 'Tinggi')  return 'pj-pill pj-pill--danger';
+      return 'pj-pill';
+    }
+
+    // ── Chart defaults ────────────────────────────────────────────
+    const CHART_DEFAULTS = {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#fff',
+          borderColor    : '#E7E5E4',
+          borderWidth    : 1,
+          titleColor     : '#1C1917',
+          bodyColor      : '#78716C',
+          padding        : 10,
+        },
+      },
+      scales: {
+        x: {
+          grid : { color: '#F5F5F4' },
+          ticks: { color: '#A8A29E', font: { size: 11, family: 'Inter' }, maxRotation: 30 },
+        },
+        y: {
+          grid : { color: '#F5F5F4' },
+          ticks: { color: '#A8A29E', font: { size: 11, family: 'Inter' } },
+        },
+      },
+    };
+
+    let bpmChart  = null;
+    let spo2Chart = null;
+    let _refreshTimer  = null;   // 10-s background auto-refresh (status kosong)
+    let _measureTimer  = null;   // interval polling pengukuran / simulasi
+    let _runToken      = 0;      // monoton; callback yang membawa token lama diabaikan
+    // Fase polling: null | 'waiting' | 'analyzing' | 'done'
+    let _pollPhase     = null;
+    let _baselineBaris = 0;      // baris terbesar saat "Mulai" diklik (0 = belum ada data)
+    let _newBaris      = 0;      // baris data baru yang menunggu analisis
+    let _waitDeadline  = 0;      // Date.now() + 300000  (5 menit, fase waiting)
+    let _analyzeDeadline = 0;    // Date.now() + 180000  (3 menit, fase analyzing)
+
+    // ── Build dashboard from API data ─────────────────────────────
+    function buildDashboard(data) {
+      const pid    = data.id_pasien;
+      const sensor = data.sensor || [];
+
+      // Identity
+      document.getElementById('hdrNama').textContent   = data.nama;
+      document.getElementById('hdrInfo').textContent   = data.umur + ' tahun · ' + data.jenis_kelamin;
+      document.getElementById('hdrAvatar').textContent = initials(data.nama);
+      document.getElementById('linkChat').href         = '/chat.html?id=' + encodeURIComponent(pid);
+      document.title = 'PantauJantung — ' + data.nama;
+
+      // ── Kartu simulasi — tampilkan jika demo mode dan umur ≥ 13 ──
+      if (window._demoMode) {
+        let umurNum = parseInt(data.umur, 10);
+        if (!isNaN(umurNum) && umurNum >= 13) {
+          document.getElementById('simPanel').style.display = '';
+        } else {
+          document.getElementById('simPanel').style.display = 'none';
+        }
+      }
+
+      // Latest sensor row
+      const latest = sensor.length > 0 ? sensor[0] : null;
+
+      // ── Status block ──────────────────────────────────────────
+      const sb = document.getElementById('statusBlock');
+
+      // Bersihkan tombol reanalisis lama (jika ada) setiap render
+      var _oldBtn = document.getElementById('btnReanalyze');
+      if (_oldBtn) _oldBtn.remove();
+
+      if (latest && latest.status) {
+        sb.className = 'pj-status-block ' + statusCls(latest.status);
+        document.getElementById('statusLabel').textContent = latest.status;
+        var note = (latest.catatan_ai && latest.catatan_ai.trim())
+          ? latest.catatan_ai.trim()
+          : statusNote(latest.status);
+        document.getElementById('statusNote').textContent = note;
+        // Cancel any pending refresh — status is filled
+        if (_refreshTimer) { clearInterval(_refreshTimer); _refreshTimer = null; }
+      } else if (latest && latest.analisis === 'menunggu') {
+        // Status kosong, baris baru (< 3 menit) — analisis sedang berjalan
+        sb.className = 'pj-status-block';
+        document.getElementById('statusLabel').textContent = 'Sedang dianalisis…';
+        document.getElementById('statusNote').textContent  = 'Status akan diperbarui otomatis setelah analisis selesai.';
+        startAutoRefresh(pid);
+      } else if (latest && latest.analisis === 'tertunda') {
+        // Status kosong, baris lama — analisis tidak pernah selesai
+        sb.className = 'pj-status-block';
+        document.getElementById('statusLabel').textContent = 'Analisis tertunda';
+        document.getElementById('statusNote').textContent  =
+          'Data pengukuran sudah tersimpan, tetapi layanan analisis belum menjawab. Sistem akan mencoba lagi otomatis.';
+        // Tombol "Coba analisis ulang"
+        var _btn = document.createElement('button');
+        _btn.id        = 'btnReanalyze';
+        _btn.type      = 'button';
+        _btn.className = 'pj-btn pj-btn--ghost pj-btn--sm';
+        _btn.style.marginTop = '0.75rem';
+        _btn.textContent = 'Coba analisis ulang';
+        _btn.addEventListener('click', function () {
+          _btn.disabled    = true;
+          _btn.textContent = 'Meminta analisis ulang...';
+          var _reanalyzeMsg = document.getElementById('statusNote');
+          fetch('/api/reanalyze', {
+            method : 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body   : JSON.stringify({ id_pasien: pid, baris: Number(latest.baris) }),
+            cache  : 'no-store',
+          }).then(function (res) {
+            if (res.status === 503) {
+              _reanalyzeMsg.textContent = 'Layanan analisis (AI) belum aktif. Coba lagi nanti.';
+              _btn.disabled    = false;
+              _btn.textContent = 'Coba analisis ulang';
+              return;
+            }
+            if (res.status === 429) {
+              _reanalyzeMsg.textContent = 'Tunggu sebentar sebelum mencoba lagi.';
+              _btn.disabled    = false;
+              _btn.textContent = 'Coba analisis ulang';
+              return;
+            }
+            if (!res.ok) {
+              _btn.disabled    = false;
+              _btn.textContent = 'Coba analisis ulang';
+              return;
+            }
+            // 202 — polling setiap 5 detik maks 3 menit
+            var _reanalyzeDeadline = Date.now() + 180000;
+            var _reanalyzeTok = ++_runToken;
+            var _reanalyzeTimer = setInterval(function () {
+              if (_reanalyzeTok !== _runToken) { clearInterval(_reanalyzeTimer); return; }
+              if (Date.now() > _reanalyzeDeadline) {
+                clearInterval(_reanalyzeTimer);
+                _btn.disabled    = false;
+                _btn.textContent = 'Coba analisis ulang';
+                return;
+              }
+              fetch('/api/patient-data/' + encodeURIComponent(pid) + '?fresh=1',
+                    { cache: 'no-store' })
+                .then(function (r) { return r.ok ? r.json() : null; })
+                .then(function (d) {
+                  if (!d) return;
+                  var s0 = (d.sensor || [])[0];
+                  if (s0 && (s0.status === 'Normal' || s0.status === 'Waspada' || s0.status === 'Tinggi')) {
+                    clearInterval(_reanalyzeTimer);
+                    buildDashboard(d);
+                  }
+                })
+                .catch(function () {});
+            }, 5000);
+          }).catch(function () {
+            _btn.disabled    = false;
+            _btn.textContent = 'Coba analisis ulang';
+          });
+        });
+        sb.appendChild(_btn);
+        // Perlambat auto-refresh ke 30 detik saat tertunda
+        if (_refreshTimer) { clearInterval(_refreshTimer); _refreshTimer = null; }
+        if (_pollPhase === null) {
+          _refreshTimer = setInterval(async function () {
+            if (_pollPhase !== null) { clearInterval(_refreshTimer); _refreshTimer = null; return; }
+            try {
+              var res  = await fetch('/api/patient-data/' + encodeURIComponent(pid), { cache: 'no-store' });
+              if (!res.ok) return;
+              var d = await res.json();
+              var s0 = (d.sensor || [])[0];
+              if (s0 && s0.status) { clearInterval(_refreshTimer); _refreshTimer = null; buildDashboard(d); }
+            } catch (_) {}
+          }, 30000);
+        }
+      } else if (latest) {
+        // Fallback: status kosong tanpa field analisis (backwards compat)
+        sb.className = 'pj-status-block';
+        document.getElementById('statusLabel').textContent = 'Sedang dianalisis…';
+        document.getElementById('statusNote').textContent  = 'Status akan diperbarui otomatis setelah analisis selesai.';
+        startAutoRefresh(pid);
+      } else {
+        sb.className = 'pj-status-block';
+        document.getElementById('statusLabel').textContent = 'Belum ada data';
+        document.getElementById('statusNote').textContent  = 'Pasang perangkat IoT dan lakukan pengukuran pertama.';
+      }
+
+      // ── Metric cards ──────────────────────────────────────────
+      if (latest) {
+        document.getElementById('metricRow').style.display = '';
+        document.getElementById('mBpm').textContent    = escapeHtml(String(latest.bpm));
+        document.getElementById('mSpo2').textContent   = escapeHtml(String(latest.spo2));
+        document.getElementById('mTanggal').textContent = escapeHtml(latest.timestamp);
+      } else {
+        document.getElementById('metricRow').style.display = 'none';
+      }
+
+      // ── Charts & table ─────────────────────────────────────────
+      if (sensor.length > 0) {
+        document.getElementById('noDataBlock').style.display  = 'none';
+        document.getElementById('chartsBlock').style.display  = '';
+        document.getElementById('tableWrap').style.display    = '';
+        document.getElementById('tableEmpty').style.display   = 'none';
+
+        // Oldest-first for charts
+        const chronological = [...sensor].reverse();
+        const labels   = chronological.map(r => r.timestamp.slice(5, 16));  // "MM-DD HH:MM"
+        const bpmData  = chronological.map(r => Number(r.bpm)  || null);
+        const spo2Data = chronological.map(r => Number(r.spo2) || null);
+
+        // Destroy & recreate charts
+        if (bpmChart)  { bpmChart.destroy();  bpmChart  = null; }
+        if (spo2Chart) { spo2Chart.destroy(); spo2Chart = null; }
+
+        bpmChart = new Chart(document.getElementById('chartBpm').getContext('2d'), {
+          type: 'line',
+          data: {
+            labels,
+            datasets: [{
+              data               : bpmData,
+              borderColor        : '#9B1B1B',
+              backgroundColor    : 'rgba(155,27,27,0.07)',
+              borderWidth        : 2,
+              pointRadius        : 4,
+              pointBackgroundColor: '#9B1B1B',
+              tension            : 0.4,
+              fill               : true,
+              spanGaps           : false,
+            }],
+          },
+          options: {
+            ...CHART_DEFAULTS,
+            scales: {
+              ...CHART_DEFAULTS.scales,
+              y: { ...CHART_DEFAULTS.scales.y,
+                title: { display:true, text:'bpm', color:'#A8A29E', font:{size:11} } },
+            },
+          },
+        });
+
+        spo2Chart = new Chart(document.getElementById('chartSpo2').getContext('2d'), {
+          type: 'line',
+          data: {
+            labels,
+            datasets: [{
+              data               : spo2Data,
+              borderColor        : '#2563EB',
+              backgroundColor    : 'rgba(37,99,235,0.06)',
+              borderWidth        : 2,
+              pointRadius        : 4,
+              pointBackgroundColor: '#2563EB',
+              tension            : 0.4,
+              fill               : true,
+              spanGaps           : false,
+            }],
+          },
+          options: {
+            ...CHART_DEFAULTS,
+            scales: {
+              ...CHART_DEFAULTS.scales,
+              y: { ...CHART_DEFAULTS.scales.y,
+                min:88, max:100,
+                title: { display:true, text:'%', color:'#A8A29E', font:{size:11} } },
+            },
+          },
+        });
+
+        // Table — newest first (sensor is already sorted desc)
+        document.getElementById('tabelBody').innerHTML = sensor.map(r => `
+          <tr>
+            <td style="color:var(--muted);">${escapeHtml(r.timestamp)}</td>
+            <td><strong>${escapeHtml(String(r.bpm))}</strong> <span style="color:var(--muted);font-size:0.8rem;">bpm</span></td>
+            <td><strong>${escapeHtml(String(r.spo2))}</strong><span style="color:var(--muted);font-size:0.8rem;">%</span></td>
+            <td><span class="${pillCls(r.status)}">${escapeHtml(r.status || '—')}</span></td>
+          </tr>
+        `).join('');
+
+      } else {
+        document.getElementById('noDataBlock').style.display  = '';
+        document.getElementById('chartsBlock').style.display  = 'none';
+        document.getElementById('tableWrap').style.display    = 'none';
+        document.getElementById('tableEmpty').style.display   = '';
+      }
+    }
+
+    // ── Status note text (fallback jika catatan_ai kosong) ───────────
+    function statusNote(status) {
+      if (status === 'Normal')  return 'Hasil pengukuran terakhir berada dalam rentang normal.';
+      if (status === 'Waspada') return 'Hasil pengukuran terakhir perlu diperhatikan. Lihat riwayat dan ukur ulang setelah duduk tenang.';
+      if (status === 'Tinggi')  return 'Hasil pengukuran terakhir perlu segera diperiksa tenaga kesehatan.';
+      return '';
+    }
+
+    // ── Auto-refresh saat status kosong (berhenti saat polling aktif) ─
+    function startAutoRefresh(pid) {
+      if (_refreshTimer) return;        // sudah berjalan
+      if (_pollPhase !== null) return;  // polling aktif — jangan ganggu
+      _refreshTimer = setInterval(async () => {
+        if (_pollPhase !== null) {
+          // Polling baru dimulai setelah timer ini dibuat — hentikan saja
+          clearInterval(_refreshTimer);
+          _refreshTimer = null;
+          return;
+        }
+        try {
+          const res  = await fetch('/api/patient-data/' + encodeURIComponent(pid),
+                                   { cache: 'no-store' });
+          if (!res.ok) return;
+          const data = await res.json();
+          const latest = (data.sensor || [])[0];
+          if (latest && latest.status) {
+            clearInterval(_refreshTimer);
+            _refreshTimer = null;
+            buildDashboard(data);
+          }
+        } catch (_) { /* silent */ }
+      }, 10000);
+    }
+
+    // ── Main loader ───────────────────────────────────────────────
+    async function initDashboard() {
+      const pid = new URLSearchParams(location.search).get('id') || '';
+
+      document.getElementById('loadingBlock').style.display  = '';
+      document.getElementById('contentBlock').style.display  = 'none';
+      document.getElementById('notFoundBlock').style.display = 'none';
+      document.getElementById('loadErrorBlock').style.display= 'none';
+
+      if (!pid) {
+        document.getElementById('loadingBlock').style.display  = 'none';
+        document.getElementById('notFoundBlock').style.display = '';
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/patient-data/' + encodeURIComponent(pid));
+
+        if (res.status === 404) {
+          document.getElementById('loadingBlock').style.display  = 'none';
+          document.getElementById('notFoundBlock').style.display = '';
+          return;
+        }
+
+        if (!res.ok) {
+          const d = await res.json().catch(() => ({}));
+          document.getElementById('loadingBlock').style.display   = 'none';
+          document.getElementById('loadErrorBlock').style.display = '';
+          document.getElementById('loadErrMsg').textContent = d.error || 'Gagal memuat data pasien.';
+          return;
+        }
+
+        const data = await res.json();
+        window._lastDashboardData = data;
+        document.getElementById('loadingBlock').style.display = 'none';
+        document.getElementById('contentBlock').style.display = '';
+        buildDashboard(data);
+
+      } catch (_) {
+        document.getElementById('loadingBlock').style.display   = 'none';
+        document.getElementById('loadErrorBlock').style.display = '';
+        document.getElementById('loadErrMsg').textContent = 'Tidak dapat terhubung ke server.';
+      }
+    }
+
+    // ── Mulai Pengukuran ──────────────────────────────────────────
+    function _setMeasureMsg(text) {
+      document.getElementById('measureMsg').textContent = text;
+    }
+
+    function _stopMeasurePolling() {
+      if (_measureTimer) { clearInterval(_measureTimer); _measureTimer = null; }
+      _pollPhase = null;
+      // Auto-refresh boleh jalan lagi
+      if (_refreshTimer) { clearInterval(_refreshTimer); _refreshTimer = null; }
+    }
+
+    // token: nilai _runToken saat polling ini dibuat; abaikan jika sudah basi
+    async function _pollMeasurement(pid, token) {
+      if (token !== _runToken) return;  // callback basi — abaikan
+
+      if (_pollPhase === 'waiting') {
+        // ── Fase waiting: cek timeout dulu ───────────────────────
+        if (Date.now() > _waitDeadline) {
+          _stopMeasurePolling();
+          _setMeasureMsg('Pengukuran kedaluwarsa. Tekan Mulai Pengukuran lagi.');
+          document.getElementById('btnMulaiUkur').disabled = false;
+          return;
+        }
+
+        // Ambil status alat (non-blocking — abaikan jika gagal)
+        try {
+          const dsRes = await fetch(
+            '/api/device-status?id=' + encodeURIComponent(pid),
+            { cache: 'no-store' }
+          );
+          if (dsRes.ok && _pollPhase === 'waiting') {
+            const ds = await dsRes.json();
+            const _DEVICE_MSG = {
+              'siap'                        : 'Alat siap. Letakkan jari di sensor.',
+              'mengukur'                    : 'Sedang mengukur. Tahan jari dengan tenang, jangan bergerak.',
+              'jari_terangkat'              : 'Jari terangkat sebelum pengukuran selesai.',
+              'letakkan_kembali'            : 'Mohon letakkan kembali jari di sensor.',
+              'sinyal_lemah'                : 'Sinyal denyut terlalu lemah. Pastikan jari menutup seluruh sensor dan tidak ditekan terlalu keras.',
+              'tidak_stabil'                : 'Pembacaan belum stabil. Bersihkan jari, jangan bergerak, lalu coba lagi.',
+              'sensor_error'                : 'Sensor tidak merespons. Hubungi petugas.',
+              'terkirim'                    : 'Data terkirim. Menunggu server menerima data...',
+              'tidak_ada_pengukuran_aktif'  : 'Alat sudah mengukur, tetapi pengukuran belum aktif atau sudah kedaluwarsa. Tekan Mulai Pengukuran lalu ulangi.',
+              'gagal_kirim'                 : 'Alat gagal mengirim data. Periksa WiFi alat.',
+            };
+            let devMsg;
+            if (!ds.alat_terhubung) {
+              devMsg = 'Alat belum terhubung ke server. Pastikan alat menyala dan tersambung WiFi.';
+            } else if (ds.kode !== null && ds.kode !== undefined && _DEVICE_MSG[ds.kode]) {
+              devMsg = _DEVICE_MSG[ds.kode];
+            } else if (ds.kode === null || ds.kode === undefined) {
+              devMsg = 'Letakkan jari di sensor. Menunggu data...';
+            }
+            // Hanya tulis jika masih di fase waiting dan pesan dikenali
+            if (devMsg !== undefined && _pollPhase === 'waiting') {
+              _setMeasureMsg(devMsg);
+            }
+          }
+        } catch (_) { /* abaikan — lanjut polling */ }
+
+        let data;
+        try {
+          const res = await fetch(
+            '/api/patient-data/' + encodeURIComponent(pid) + '?fresh=1',
+            { cache: 'no-store' }
+          );
+          if (!res.ok) return;
+          data = await res.json();
+        } catch (_) { return; }
+
+        const sensor = data.sensor || [];
+        // Cari baris pertama dengan baris > baselineBaris
+        const newRow = sensor.find(r => Number(r.baris) > _baselineBaris);
+        if (newRow) {
+          _pollPhase  = 'analyzing';
+          _newBaris   = Number(newRow.baris);
+          _analyzeDeadline = Date.now() + 180000;  // 3 menit
+          _setMeasureMsg('Data diterima, sedang dianalisis...');
+          // Ganti interval dari 3 s → 5 s
+          _stopMeasurePolling();
+          _pollPhase = 'analyzing';  // dipulihkan setelah _stopMeasurePolling null-kan
+          _runToken++;
+          const tok2 = _runToken;
+          buildDashboard(data);
+          _measureTimer = setInterval(() => _pollMeasurement(pid, tok2), 5000);
+        }
+
+      } else if (_pollPhase === 'analyzing') {
+        // ── Fase analyzing: timeout 3 menit ──────────────────────
+        if (Date.now() > _analyzeDeadline) {
+          _stopMeasurePolling();
+          _setMeasureMsg('Data sudah tersimpan, analisis belum selesai. Gunakan tombol Coba analisis ulang di blok status.');
+          document.getElementById('btnMulaiUkur').disabled = false;
+          return;
+        }
+
+        let data;
+        try {
+          const res = await fetch(
+            '/api/patient-data/' + encodeURIComponent(pid) + '?fresh=1',
+            { cache: 'no-store' }
+          );
+          if (!res.ok) return;
+          data = await res.json();
+        } catch (_) { return; }
+
+        // Hanya periksa baris _newBaris
+        const sensor  = data.sensor || [];
+        const target  = sensor.find(r => Number(r.baris) === _newBaris);
+        if (target && (target.status === 'Normal' || target.status === 'Waspada' || target.status === 'Tinggi')) {
+          _stopMeasurePolling();
+          _pollPhase = 'done';
+          _setMeasureMsg('');
+          document.getElementById('btnMulaiUkur').disabled = false;
+          buildDashboard(data);
+        }
+      }
+    }
+
+    document.getElementById('btnMulaiUkur').addEventListener('click', async function () {
+      const pid = new URLSearchParams(location.search).get('id') || '';
+      if (!pid) return;
+
+      this.disabled = true;
+      _stopMeasurePolling();
+
+      // Ambil data segar untuk baseline baris
+      let baseData;
+      try {
+        const res = await fetch(
+          '/api/patient-data/' + encodeURIComponent(pid) + '?fresh=1',
+          { cache: 'no-store' }
+        );
+        if (!res.ok) {
+          const d = await res.json().catch(() => ({}));
+          _setMeasureMsg(d.error || 'Gagal membaca data pasien.');
+          this.disabled = false;
+          return;
+        }
+        baseData = await res.json();
+      } catch (_) {
+        _setMeasureMsg('Tidak dapat terhubung ke server.');
+        this.disabled = false;
+        return;
+      }
+
+      const baseSensor = baseData.sensor || [];
+      _baselineBaris = baseSensor.length > 0
+        ? Math.max(...baseSensor.map(r => Number(r.baris)))
+        : 0;
+      window._lastDashboardData = baseData;
+
+      try {
+        const res = await fetch('/api/start-measurement', {
+          method : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body   : JSON.stringify({ id_pasien: pid }),
+        });
+        if (!res.ok) {
+          const d = await res.json().catch(() => ({}));
+          _setMeasureMsg(d.error || 'Gagal memulai pengukuran.');
+          this.disabled = false;
+          return;
+        }
+      } catch (_) {
+        _setMeasureMsg('Tidak dapat terhubung ke server.');
+        this.disabled = false;
+        return;
+      }
+
+      _pollPhase    = 'waiting';
+      _waitDeadline = Date.now() + 300000;  // 5 menit
+      _runToken++;
+      const tok = _runToken;
+      _setMeasureMsg('Letakkan jari di sensor. Menunggu data...');
+      _measureTimer = setInterval(() => _pollMeasurement(pid, tok), 3000);
+    });
+
+    // ── Simulasi pengukuran ───────────────────────────────────────
+    function _setSimMsg(text) {
+      document.getElementById('simMsg').textContent = text;
+    }
+
+    function _setSimBpmErr(text) {
+      document.getElementById('simBpmErr').textContent = text;
+    }
+
+    function _setSimSpo2Err(text) {
+      document.getElementById('simSpo2Err').textContent = text;
+    }
+
+    function _simBtnsDisabled(disabled) {
+      ['btnSimNormal', 'btnSimWaspada', 'btnSimTinggi', 'btnSimManual'].forEach(function (id) {
+        document.getElementById(id).disabled = disabled;
+      });
+    }
+
+    // Polling untuk simulasi — menggunakan alur dan token yang sama
+    async function _pollSimulation(pid, token) {
+      if (token !== _runToken) return;  // callback basi
+
+      if (_pollPhase === 'waiting') {
+        if (Date.now() > _waitDeadline) {
+          _stopMeasurePolling();
+          _setSimMsg('Simulasi kedaluwarsa. Coba lagi.');
+          _simBtnsDisabled(false);
+          return;
+        }
+
+        let data;
+        try {
+          const res = await fetch(
+            '/api/patient-data/' + encodeURIComponent(pid) + '?fresh=1',
+            { cache: 'no-store' }
+          );
+          if (!res.ok) return;
+          data = await res.json();
+        } catch (_) { return; }
+
+        const sensor = data.sensor || [];
+        const newRow = sensor.find(r => Number(r.baris) > _baselineBaris);
+        if (newRow) {
+          _pollPhase  = 'analyzing';
+          _newBaris   = Number(newRow.baris);
+          _analyzeDeadline = Date.now() + 180000;
+          _setSimMsg('Data diterima, sedang dianalisis...');
+          _stopMeasurePolling();
+          _pollPhase = 'analyzing';
+          _runToken++;
+          const tok2 = _runToken;
+          buildDashboard(data);
+          _measureTimer = setInterval(() => _pollSimulation(pid, tok2), 5000);
+        }
+
+      } else if (_pollPhase === 'analyzing') {
+        if (Date.now() > _analyzeDeadline) {
+          _stopMeasurePolling();
+          _setSimMsg('Data sudah tersimpan, analisis belum selesai. Gunakan tombol Coba analisis ulang di blok status.');
+          _simBtnsDisabled(false);
+          return;
+        }
+
+        let data;
+        try {
+          const res = await fetch(
+            '/api/patient-data/' + encodeURIComponent(pid) + '?fresh=1',
+            { cache: 'no-store' }
+          );
+          if (!res.ok) return;
+          data = await res.json();
+        } catch (_) { return; }
+
+        const sensor = data.sensor || [];
+        const target = sensor.find(r => Number(r.baris) === _newBaris);
+        if (target && (target.status === 'Normal' || target.status === 'Waspada' || target.status === 'Tinggi')) {
+          _stopMeasurePolling();
+          _pollPhase = 'done';
+          _setSimMsg('');
+          _simBtnsDisabled(false);
+          buildDashboard(data);
+        }
+      }
+    }
+
+    async function _runSimulation(pid, skenario, extraBody) {
+      _simBtnsDisabled(true);
+      _stopMeasurePolling();
+
+      // Ambil data segar untuk baseline baris
+      let baseData;
+      try {
+        const res = await fetch(
+          '/api/patient-data/' + encodeURIComponent(pid) + '?fresh=1',
+          { cache: 'no-store' }
+        );
+        if (!res.ok) {
+          const d = await res.json().catch(() => ({}));
+          _setSimMsg(d.error || 'Gagal membaca data pasien.');
+          _simBtnsDisabled(false);
+          return;
+        }
+        baseData = await res.json();
+      } catch (_) {
+        _setSimMsg('Tidak dapat terhubung ke server.');
+        _simBtnsDisabled(false);
+        return;
+      }
+
+      const baseSensor = baseData.sensor || [];
+      _baselineBaris = baseSensor.length > 0
+        ? Math.max(...baseSensor.map(r => Number(r.baris)))
+        : 0;
+      window._lastDashboardData = baseData;
+
+      const body = Object.assign({ id_pasien: pid, skenario: skenario }, extraBody || {});
+
+      let resData;
+      try {
+        const res = await fetch('/api/simulate-measurement', {
+          method : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body   : JSON.stringify(body),
+        });
+        resData = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          _setSimMsg(resData.error || 'Simulasi gagal.');
+          _simBtnsDisabled(false);
+          return;
+        }
+      } catch (_) {
+        _setSimMsg('Tidak dapat terhubung ke server.');
+        _simBtnsDisabled(false);
+        return;
+      }
+
+      _pollPhase    = 'waiting';
+      _waitDeadline = Date.now() + 300000;
+      _runToken++;
+      const tok = _runToken;
+      _setSimMsg('Menunggu data simulasi...');
+      _measureTimer = setInterval(() => _pollSimulation(pid, tok), 3000);
+    }
+
+    document.getElementById('btnSimNormal').addEventListener('click', function () {
+      const pid = new URLSearchParams(location.search).get('id') || '';
+      if (pid) _runSimulation(pid, 'normal');
+    });
+
+    document.getElementById('btnSimWaspada').addEventListener('click', function () {
+      const pid = new URLSearchParams(location.search).get('id') || '';
+      if (pid) _runSimulation(pid, 'waspada');
+    });
+
+    document.getElementById('btnSimTinggi').addEventListener('click', function () {
+      const pid = new URLSearchParams(location.search).get('id') || '';
+      if (pid) _runSimulation(pid, 'tinggi');
+    });
+
+    document.getElementById('btnSimManual').addEventListener('click', function () {
+      const pid = new URLSearchParams(location.search).get('id') || '';
+      if (!pid) return;
+
+      // Klien-side pre-validasi untuk UX cepat; server tetap memvalidasi ulang
+      _setSimBpmErr('');
+      _setSimSpo2Err('');
+      _setSimMsg('');
+
+      const bpmRaw  = document.getElementById('simBpmInput').value.trim();
+      const spo2Raw = document.getElementById('simSpo2Input').value.trim();
+      let ok = true;
+
+      const bpmInt  = parseInt(bpmRaw, 10);
+      const spo2Int = parseInt(spo2Raw, 10);
+
+      if (bpmRaw === '' || isNaN(bpmInt) || !isFinite(bpmInt) || String(bpmInt) !== bpmRaw) {
+        _setSimBpmErr('BPM harus berupa bilangan bulat.');
+        ok = false;
+      } else if (bpmInt < 20 || bpmInt > 220) {
+        _setSimBpmErr('BPM harus antara 20 dan 220.');
+        ok = false;
+      }
+
+      if (spo2Raw === '' || isNaN(spo2Int) || !isFinite(spo2Int) || String(spo2Int) !== spo2Raw) {
+        _setSimSpo2Err('SpO₂ harus berupa bilangan bulat.');
+        ok = false;
+      } else if (spo2Int < 50 || spo2Int > 100) {
+        _setSimSpo2Err('SpO₂ harus antara 50 dan 100.');
+        ok = false;
+      }
+
+      if (!ok) return;
+
+      _runSimulation(pid, 'manual', { bpm: bpmInt, spo2: spo2Int });
+    });
+
+    // ── Bootstrap ─────────────────────────────────────────────────
+    // Panggil /api/config untuk menentukan apakah kartu simulasi ditampilkan
+    (async function initConfig() {
+      try {
+        const res = await fetch('/api/config');
+        if (!res.ok) return;
+        const cfg = await res.json();
+        if (cfg.demo === true) {
+          // Sembunyikan jika umur < 13 — dicek setelah data pasien dimuat
+          window._demoMode = true;
+        }
+      } catch (_) { /* abaikan */ }
+    })();
+
+    initDashboard();
+  </script>
+</body>
+</html>

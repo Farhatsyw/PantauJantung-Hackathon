@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PantauJantung — Asisten AI</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <style>
+    /* ── Hide footer on chat page ────────────────────────────────── */
+    .pj-footer { display: none; }
+  </style>
+</head>
+
+<body class="chat-page">
+
+  <!-- ── Navbar ──────────────────────────────────────────────────── -->
+  <nav class="pj-nav">
+    <div class="pj-nav__inner">
+      <a href="/" class="pj-nav__logo">
+        <span class="pj-nav__logo-heart">♥</span>
+        PantauJantung
+      </a>
+      <ul class="pj-nav__links">
+        <li><a href="/" class="pj-nav__link">Pasien</a></li>
+        <li><a href="/dashboard.html" class="pj-nav__link">Dashboard</a></li>
+        <li><a href="/chat.html" class="pj-nav__link pj-nav__link--active">Asisten AI</a></li>
+      </ul>
+      <button id="pj-hamburger" class="pj-nav__hamburger"
+              aria-expanded="false" aria-controls="pj-mobile-menu"
+              aria-label="Buka menu" type="button">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div id="pj-mobile-menu" class="pj-mobile-menu">
+      <a href="/" class="pj-mobile-menu__link">Pasien</a>
+      <a href="/dashboard.html" class="pj-mobile-menu__link">Dashboard</a>
+      <a href="/chat.html" class="pj-mobile-menu__link pj-mobile-menu__link--active">Asisten AI</a>
+    </div>
+  </nav>
+
+  <!-- ── Full-screen chat area ────────────────────────────────────── -->
+  <div class="chat-page__body" id="chatLayout">
+
+    <!-- Scrim (mobile overlay only) -->
+    <div class="chat-scrim" id="sidebarScrim" style="display:none;" aria-hidden="true"></div>
+
+    <!-- ── Sidebar ───────────────────────────────────────────────── -->
+    <aside class="chat-sidebar" id="chatSidebar" aria-label="Daftar percakapan">
+      <div class="chat-sidebar__head">
+        <button class="chat-sidebar__new-btn" id="btnNewChat" type="button">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          Percakapan baru
+        </button>
+      </div>
+      <div class="chat-sidebar__list" id="sidebarList">
+        <div class="chat-sidebar__empty" id="sidebarEmpty" style="display:none;">Belum ada percakapan.</div>
+      </div>
+    </aside>
+
+    <!-- ── Main area ─────────────────────────────────────────────── -->
+    <div class="chat-main">
+
+      <!-- Slim header bar -->
+      <header class="chat-header">
+        <div class="chat-header__left">
+          <button class="sidebar-toggle" id="sidebarToggle" type="button"
+                  aria-label="Toggle sidebar percakapan" aria-expanded="true" aria-controls="chatSidebar">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+              <rect x="2" y="4" width="14" height="1.5" rx="0.75" fill="currentColor"/>
+              <rect x="2" y="8.25" width="9" height="1.5" rx="0.75" fill="currentColor"/>
+              <rect x="2" y="12.5" width="12" height="1.5" rx="0.75" fill="currentColor"/>
+            </svg>
+          </button>
+          <!-- id="chatTitle" kept for JS -->
+          <span class="chat-header__title" id="chatTitle">Asisten PantauJantung</span>
+          <!-- id="chatSub" kept for JS but visually hidden in header -->
+          <span id="chatSub" class="chat-header__sub"></span>
+        </div>
+        <div class="chat-header__right">
+          <a id="linkDashboard" href="/dashboard.html" class="pj-btn pj-btn--ghost pj-btn--sm">
+            Lihat Dashboard
+          </a>
+        </div>
+      </header>
+
+      <!-- Scrollable messages column -->
+      <div class="chat-feed" id="chatArea"
+           aria-live="polite" aria-label="Riwayat percakapan">
+      </div>
+
+      <!-- Floating input bar -->
+      <div class="chat-input-bar">
+        <div class="chat-input-box">
+          <form id="chatForm" class="chat-input-box__form">
+            <textarea
+              id="chatInput"
+              class="chat-input-box__textarea"
+              rows="1"
+              placeholder="Tulis pertanyaan..."
+              aria-label="Pesan ke asisten"
+              maxlength="800"
+            ></textarea>
+            <button type="submit" id="sendBtn" class="pj-btn pj-btn--primary chat-input-box__send"
+                    aria-label="Kirim">
+              Kirim
+            </button>
+          </form>
+        </div>
+        <p class="chat-input-bar__disclaimer">
+          Respons bersifat indikatif dan bukan pengganti diagnosis medis profesional.
+        </p>
+      </div>
+
+    </div><!-- /chat-main -->
+  </div><!-- /chat-page__body -->
+
+  <footer class="pj-footer">© 2026 PantauJantung · Monitoring Kesehatan Jantung Berbasis IoT</footer>
+
+  <script src="/js/nav.js" defer></script>
+  <script>
+    // ── Init ──────────────────────────────────────────────────────
+    const pid = new URLSearchParams(location.search).get('id') || '';
+
+    // ── Helpers ───────────────────────────────────────────────────
+    const chatArea  = document.getElementById('chatArea');
+
+    // Typing indicator — dibuat sekali, dilepas dari DOM, dipasang ulang
+    // di akhir chatArea setiap kali ditampilkan agar selalu setelah pesan terakhir
+    const typingRow = document.createElement('div');
+    typingRow.id = 'typingRow';
+    typingRow.className = 'pj-bubble-row pj-bubble-row--ai chat-typing-row';
+    typingRow.innerHTML =
+      '<div class="pj-bubble-avatar">AI</div>' +
+      '<div class="pj-bubble-body chat-typing-body">' +
+        '<div class="pj-typing"><span></span><span></span><span></span></div>' +
+      '</div>';
+    const chatInput = document.getElementById('chatInput');
+    const sendBtn   = document.getElementById('sendBtn');
+
+    function nowTime() {
+      const d = new Date();
+      return d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+    }
+
+    // Escape teks agar aman dirender sebagai HTML
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+      // Newline TIDAK diganti di sini agar formatAi() bisa memproses \n asli
+    }
+
+    function formatAi(text) {
+      // 1. Escape semua HTML — tidak ada karakter dari server yang lolos mentah
+      let s = escapeHtml(text);
+      // 2. **teks** → <strong>teks</strong>
+      s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+      // 3. Baris yang diawali "* " atau "- " (diikuti satu atau lebih spasi) → "• "
+      s = s.replace(/(^|\n)[*\-] +/g, '$1• ');
+      // 4. Newline → <br> (dilakukan terakhir agar regex baris di atas bekerja pada \n asli)
+      s = s.replace(/\n/g, '<br>');
+      return s;
+    }
+
+    function addBubble(role, text) {
+      const row = document.createElement('div');
+      row.className = role === 'user'
+        ? 'pj-bubble-row pj-bubble-row--user'
+        : 'pj-bubble-row pj-bubble-row--ai';
+
+      if (role === 'ai') {
+        const formattedText = formatAi(text);
+        row.innerHTML = `
+          <div class="pj-bubble-avatar">AI</div>
+          <div class="pj-bubble-body">${formattedText}<p class="pj-bubble-time">${nowTime()}</p></div>`;
+      } else {
+        const safeText = escapeHtml(text).replace(/\n/g, '<br>');
+        row.innerHTML = `
+          <div class="pj-bubble-body">${safeText}<p class="pj-bubble-time">${nowTime()}</p></div>`;
+      }
+
+      chatArea.appendChild(row);
+      chatArea.scrollTop = chatArea.scrollHeight;
+    }
+
+    // Nonaktifkan input secara permanen (session error / pasien tidak ditemukan)
+    function lockChat(message) {
+      chatInput.disabled = true;
+      chatInput.placeholder = 'Sesi tidak aktif.';
+      sendBtn.disabled = true;
+      addBubble('ai', '⚠️ ' + message);
+    }
+
+    // ── Sidebar state ─────────────────────────────────────────────
+    const SIDEBAR_KEY  = 'pj_sidebar_open';
+    const NARROW_BP    = 700;   // px — below this: overlay mode
+    const sidebar      = document.getElementById('chatSidebar');
+    const chatLayout   = document.getElementById('chatLayout');
+    const scrim        = document.getElementById('sidebarScrim');
+    const toggleBtn    = document.getElementById('sidebarToggle');
+
+    function isNarrow() { return window.innerWidth < NARROW_BP; }
+
+    function getSidebarPref() {
+      try { return localStorage.getItem(SIDEBAR_KEY); } catch(_) { return null; }
+    }
+    function setSidebarPref(open) {
+      try { localStorage.setItem(SIDEBAR_KEY, open ? '1' : '0'); } catch(_) {}
+    }
+
+    function openSidebar(save) {
+      sidebar.classList.remove('closed');
+      chatLayout.classList.remove('sidebar-closed');
+      scrim.style.display  = isNarrow() ? 'block' : 'none';
+      toggleBtn.setAttribute('aria-expanded', 'true');
+      if (save) setSidebarPref(true);
+    }
+    function closeSidebar(save) {
+      sidebar.classList.add('closed');
+      chatLayout.classList.add('sidebar-closed');
+      scrim.style.display = 'none';
+      toggleBtn.setAttribute('aria-expanded', 'false');
+      if (save) setSidebarPref(false);
+    }
+
+    // Initial sidebar state
+    if (isNarrow()) {
+      closeSidebar(false);
+    } else {
+      const pref = getSidebarPref();
+      pref === '0' ? closeSidebar(false) : openSidebar(false);
+    }
+
+    toggleBtn.addEventListener('click', function() {
+      if (sidebar.classList.contains('closed')) {
+        openSidebar(true);
+      } else {
+        closeSidebar(true);
+      }
+    });
+    scrim.addEventListener('click', function() { closeSidebar(true); });
+
+    window.addEventListener('resize', function() {
+      scrim.style.display = 'none';
+      if (isNarrow() && !sidebar.classList.contains('closed')) {
+        // On narrow: hide scrim but keep sidebar state; just fix scrim visibility
+        // Actually on resize to narrow we close overlay to avoid stuck scrim
+        closeSidebar(false);
+      }
+    });
+
+    // ── Active conversation state ─────────────────────────────────
+    let activeConvoId = null;   // null = new conversation
+
+    // Regex untuk validasi id_percakapan (12 hex chars) — sama dengan server
+    const CONVO_ID_RE = /^[0-9a-f]{12}$/;
+
+    // Perbarui URL saat activeConvoId berubah; pertahankan ?id= pasien
+    function setConvoUrl(convoId) {
+      const params = new URLSearchParams(location.search);
+      if (convoId && CONVO_ID_RE.test(convoId)) {
+        params.set('c', convoId);
+      } else {
+        params.delete('c');
+      }
+      history.replaceState(null, '', '?' + params.toString());
+    }
+
+    // ── Zona-waktu WIB (UTC+7) — helper ──────────────────────────
+    // Kembalikan tanggal WIB "YYYY-MM-DD", dengan offsetHari hari ke belakang.
+    // Tidak bergantung pada timezone browser.
+    function tanggalWIB(offsetHari) {
+      offsetHari = offsetHari || 0;
+      return new Date(Date.now() + 7 * 3600 * 1000 - offsetHari * 86400000)
+        .toISOString().slice(0, 10);
+    }
+
+    // ── Sidebar rendering ─────────────────────────────────────────
+    function groupConvos(list) {
+      const today = tanggalWIB(0);
+      const yest  = tanggalWIB(1);
+
+      const groups = { 'Hari ini': [], 'Kemarin': [], 'Lebih lama': [] };
+      list.forEach(c => {
+        const day = (c.waktu_terakhir || '').slice(0, 10);
+        if (day === today)      groups['Hari ini'].push(c);
+        else if (day === yest)  groups['Kemarin'].push(c);
+        else                    groups['Lebih lama'].push(c);
+      });
+      return groups;
+    }
+
+    function formatSidebarTime(ts) {
+      if (!ts) return '';
+      // ts = "YYYY-MM-DD HH:MM:SS" (WIB dari server)
+      const today = tanggalWIB(0);
+      const day   = ts.slice(0, 10);
+      if (day === today) return ts.slice(11, 16);   // "HH:MM"
+      return ts.slice(5, 10).replace('-', '/');     // "MM/DD"
+    }
+
+    function renderSidebar(list) {
+      const container = document.getElementById('sidebarList');
+      const emptyEl   = document.getElementById('sidebarEmpty');
+
+      // Remove old items (keep emptyEl)
+      Array.from(container.querySelectorAll('.chat-sidebar__group-label, .chat-sidebar__item'))
+        .forEach(el => el.remove());
+
+      if (!list || list.length === 0) {
+        emptyEl.style.display = '';
+        return;
+      }
+      emptyEl.style.display = 'none';
+
+      const groups = groupConvos(list);
+      ['Hari ini', 'Kemarin', 'Lebih lama'].forEach(label => {
+        const items = groups[label];
+        if (!items.length) return;
+
+        const lbl = document.createElement('div');
+        lbl.className = 'chat-sidebar__group-label';
+        lbl.textContent = label;
+        container.appendChild(lbl);
+
+        items.forEach(c => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'chat-sidebar__item' + (c.id_percakapan === activeConvoId ? ' active' : '');
+          btn.dataset.id = c.id_percakapan;
+
+          const titleEl = document.createElement('span');
+          titleEl.className = 'chat-sidebar__item-title';
+          titleEl.textContent = c.judul || '(tanpa judul)';
+
+          const timeEl = document.createElement('span');
+          timeEl.className = 'chat-sidebar__item-time';
+          timeEl.textContent = formatSidebarTime(c.waktu_terakhir);
+
+          btn.appendChild(titleEl);
+          btn.appendChild(timeEl);
+
+          btn.addEventListener('click', function() {
+            loadConversation(c.id_percakapan);
+            if (isNarrow()) closeSidebar(true);
+          });
+
+          container.appendChild(btn);
+        });
+      });
+    }
+
+    function setActiveSidebarItem(id) {
+      document.querySelectorAll('.chat-sidebar__item').forEach(el => {
+        el.classList.toggle('active', el.dataset.id === id);
+      });
+    }
+
+    // ── Load conversation from server ─────────────────────────────
+    async function loadConversation(id) {
+      activeConvoId = id;
+      setConvoUrl(id);
+      setActiveSidebarItem(id);
+      chatArea.innerHTML = '';
+
+      try {
+        const res = await fetch('/api/chats/' + encodeURIComponent(id));
+        if (!res.ok) {
+          addBubble('ai', '⚠️ Gagal memuat percakapan.');
+          return;
+        }
+        const msgs = await res.json();
+        msgs.forEach(m => {
+          if (m.role === 'user') {
+            const safeText = escapeHtml(m.pesan).replace(/\n/g, '<br>');
+            const row = document.createElement('div');
+            row.className = 'pj-bubble-row pj-bubble-row--user';
+            row.innerHTML = `<div class="pj-bubble-body">${safeText}<p class="pj-bubble-time">${(m.timestamp||'').slice(11,16)}</p></div>`;
+            chatArea.appendChild(row);
+          } else {
+            const row = document.createElement('div');
+            row.className = 'pj-bubble-row pj-bubble-row--ai';
+            row.innerHTML = `<div class="pj-bubble-avatar">AI</div><div class="pj-bubble-body">${formatAi(m.pesan)}<p class="pj-bubble-time">${(m.timestamp||'').slice(11,16)}</p></div>`;
+            chatArea.appendChild(row);
+          }
+        });
+        chatArea.scrollTop = chatArea.scrollHeight;
+      } catch (_) {
+        addBubble('ai', '⚠️ Tidak dapat memuat percakapan.');
+      }
+    }
+
+    // ── Load sidebar list ─────────────────────────────────────────
+    async function loadSidebar() {
+      try {
+        const res = await fetch('/api/chats');
+        if (!res.ok) return;
+        const list = await res.json();
+        renderSidebar(list);
+      } catch (_) { /* silent */ }
+    }
+
+    // ── New conversation ──────────────────────────────────────────
+    document.getElementById('btnNewChat').addEventListener('click', function() {
+      activeConvoId = null;
+      setConvoUrl(null);
+      setActiveSidebarItem(null);
+      chatArea.innerHTML = '';
+      if (isNarrow()) closeSidebar(true);
+    });
+
+    // ── Select patient: await sebelum tombol aktif ────────────────
+    sendBtn.disabled = true;
+    chatInput.disabled = true;
+    chatInput.placeholder = 'Menghubungkan sesi…';
+
+    (async () => {
+      // 1. Ambil data pasien untuk header
+      if (pid) {
+        try {
+          const res = await fetch('/api/patient-data/' + encodeURIComponent(pid));
+          if (res.ok) {
+            const d = await res.json();
+            document.getElementById('chatSub').textContent =
+              'Membantu menjawab pertanyaan seputar kesehatan, terutama terkait jantung.';
+            document.getElementById('linkDashboard').href  = '/dashboard.html?id=' + encodeURIComponent(pid);
+            document.title = 'PantauJantung — Asisten: ' + d.nama;
+          } else {
+            document.getElementById('chatSub').textContent = 'Pasien tidak dikenal.';
+          }
+        } catch (_) {
+          document.getElementById('chatSub').textContent = 'Pasien tidak dikenal.';
+        }
+      } else {
+        document.getElementById('chatSub').textContent = 'Pasien tidak dikenal.';
+      }
+
+      // 2. Daftarkan sesi ke backend
+      try {
+        const res = await fetch('/api/select-patient', {
+          method : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body   : JSON.stringify({ id_pasien: pid }),
+        });
+
+        if (res.status === 404) {
+          lockChat('Pasien tidak ditemukan. Kembali ke halaman pasien dan pilih ulang.');
+          return;
+        }
+
+        if (!res.ok) {
+          const d = await res.json().catch(() => ({}));
+          lockChat(d.error || 'Gagal memulai sesi. Muat ulang halaman.');
+          return;
+        }
+
+        // Sesi berhasil — aktifkan input
+        chatInput.disabled = false;
+        chatInput.placeholder = 'Tulis pertanyaan...';
+        sendBtn.disabled = false;
+        chatInput.focus();
+
+        // 3. Muat daftar percakapan
+        await loadSidebar();
+
+        // 4. Pulihkan percakapan dari URL (?c=)
+        const urlC = new URLSearchParams(location.search).get('c') || '';
+        if (CONVO_ID_RE.test(urlC)) {
+          try {
+            const chkRes = await fetch('/api/chats/' + encodeURIComponent(urlC));
+            if (chkRes.status === 404 || !chkRes.ok) {
+              setConvoUrl(null);
+            } else {
+              await loadConversation(urlC);
+            }
+          } catch (_) {
+            setConvoUrl(null);
+          }
+        }
+
+      } catch (_) {
+        lockChat('Tidak dapat terhubung ke server. Periksa koneksi Anda.');
+      }
+    })();
+
+    // ── Auto-grow textarea ────────────────────────────────────────
+    chatInput.addEventListener('input', function() {
+      this.style.height = 'auto';
+      this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
+    chatInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        document.getElementById('chatForm').requestSubmit();
+      }
+    });
+
+    // ── Submit → fetch /api/chat ──────────────────────────────────
+    document.getElementById('chatForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const text = chatInput.value.trim();
+      if (!text) return;
+
+      addBubble('user', text);
+      chatInput.value = '';
+      chatInput.style.height = 'auto';
+
+      sendBtn.disabled = true;
+      chatArea.appendChild(typingRow);
+      typingRow.style.display = 'flex';
+      chatArea.scrollTop = chatArea.scrollHeight;
+
+      try {
+        const body = { message: text, id_pasien: pid };
+        if (activeConvoId) body.id_percakapan = activeConvoId;
+
+        const res = await fetch('/api/chat', {
+          method : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          // id_pasien hanya sebagai pemeriksaan konsistensi —
+          // backend TIDAK menggunakannya sebagai sumber data.
+          body   : JSON.stringify(body),
+        });
+
+        const data = await res.json();
+
+        if (res.status === 409) {
+          lockChat(data.error || 'Pasien aktif telah berubah. Muat ulang halaman ini.');
+          return;
+        }
+
+        if (!res.ok || data.error) {
+          addBubble('ai', '⚠️ ' + (data.error || 'Terjadi kesalahan. Silakan coba lagi.'));
+        } else {
+          addBubble('ai', data.reply);
+
+          // Simpan id_percakapan dari respons jika ini pesan pertama
+          const isFirst = !activeConvoId;
+          activeConvoId = data.id_percakapan;
+          setConvoUrl(activeConvoId);
+
+          // Segarkan sidebar setelah pesan pertama (judul baru muncul)
+          if (isFirst) await loadSidebar();
+          setActiveSidebarItem(activeConvoId);
+        }
+      } catch (err) {
+        addBubble('ai', '⚠️ Tidak dapat terhubung ke server. Periksa koneksi Anda.');
+      } finally {
+        typingRow.style.display = 'none';
+        if (!chatInput.disabled) {
+          sendBtn.disabled = false;
+          chatInput.focus();
+        }
+      }
+    });
+  </script>
+</body>
+</html>

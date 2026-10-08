@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PantauJantung — Daftar Pasien</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+
+<body>
+
+  <!-- ── Navbar ──────────────────────────────────────────────────── -->
+  <nav class="pj-nav">
+    <div class="pj-nav__inner">
+      <a href="/" class="pj-nav__logo">
+        <span class="pj-nav__logo-heart">♥</span>
+        PantauJantung
+      </a>
+
+      <!-- Desktop nav -->
+      <ul class="pj-nav__links">
+        <li><a href="/" class="pj-nav__link pj-nav__link--active">Pasien</a></li>
+        <li><a href="/dashboard.html" class="pj-nav__link">Dashboard</a></li>
+        <li><a href="/chat.html" class="pj-nav__link">Asisten AI</a></li>
+      </ul>
+
+      <!-- Hamburger (mobile) -->
+      <button id="pj-hamburger" class="pj-nav__hamburger"
+              aria-expanded="false" aria-controls="pj-mobile-menu"
+              aria-label="Buka menu" type="button">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+    <!-- Mobile menu panel -->
+    <div id="pj-mobile-menu" class="pj-mobile-menu">
+      <a href="/" class="pj-mobile-menu__link pj-mobile-menu__link--active">Pasien</a>
+      <a href="/dashboard.html" class="pj-mobile-menu__link">Dashboard</a>
+      <a href="/chat.html" class="pj-mobile-menu__link">Asisten AI</a>
+    </div>
+  </nav>
+
+  <!-- ── Main ────────────────────────────────────────────────────── -->
+  <main>
+    <div class="pj-container">
+
+      <!-- Page header -->
+      <div class="pj-page-header">
+        <span class="pj-eyebrow">Pantau kesehatan jantung</span>
+        <h1 class="pj-h1">Daftar Pasien</h1>
+        <p class="pj-sub">Daftarkan pasien baru atau lanjutkan sesi pengukuran.</p>
+      </div>
+
+      <!-- 2-kolom: form + list -->
+      <div class="pj-index-grid">
+
+        <!-- Kolom kiri: form (sticky on desktop) -->
+        <div id="colForm" class="pj-card pj-form-sticky">
+          <h2 class="pj-h2" style="margin-bottom:1.25rem;">Pasien Baru</h2>
+
+          <form id="formPasien" novalidate>
+
+            <div class="pj-field">
+              <label class="pj-label" for="nama">Nama Lengkap</label>
+              <input id="nama" type="text" class="pj-input" placeholder="Contoh: Budi Santoso" autocomplete="off" />
+              <span class="pj-field-error" id="err-nama">Nama tidak boleh kosong.</span>
+            </div>
+
+            <div class="pj-field">
+              <label class="pj-label" for="umur">Umur</label>
+              <input id="umur" type="number" min="0" max="120" class="pj-input" placeholder="Tahun" />
+              <span class="pj-field-error" id="err-umur">Masukkan umur yang valid (0–120).</span>
+            </div>
+
+            <div class="pj-field">
+              <label class="pj-label" for="jk">Jenis Kelamin</label>
+              <select id="jk" class="pj-input">
+                <option value="" disabled selected>Pilih…</option>
+                <option value="Laki-laki">Laki-laki</option>
+                <option value="Perempuan">Perempuan</option>
+              </select>
+              <span class="pj-field-error" id="err-jk">Pilih jenis kelamin.</span>
+            </div>
+
+            <!-- Error umum dari server -->
+            <div id="formServerError" class="pj-form-error" style="display:none;"></div>
+
+            <button type="submit" id="submitBtn" class="pj-btn pj-btn--primary pj-btn--block-mobile pj-btn--full">
+              Simpan dan lanjut ke pengukuran
+            </button>
+
+          </form>
+
+          <div class="pj-toast" id="toastOk">Pasien berhasil didaftarkan.</div>
+        </div>
+
+        <!-- Kolom kanan: daftar -->
+        <div id="colList">
+          <!-- Peringatan pilih pasien (ditampilkan via JS jika ?pilih=1) -->
+          <div id="pilihAlert" style="display:none;margin-bottom:1rem;padding:0.75rem 1rem;border-radius:8px;background:#fef9c3;border:1px solid #fde047;color:#713f12;font-size:0.875rem;font-weight:500;"></div>
+
+          <div class="pj-list-header">
+            <h2 class="pj-h2" style="margin:0;">Pasien Terdaftar</h2>
+            <span id="countBadge" class="pj-count-badge">Memuat…</span>
+          </div>
+
+          <!-- Loading skeleton -->
+          <div id="loadingState" class="pj-skeleton-list">
+            <div class="pj-skeleton-item"></div>
+            <div class="pj-skeleton-item" style="animation-delay:0.2s;"></div>
+            <div class="pj-skeleton-item" style="animation-delay:0.4s;"></div>
+          </div>
+
+          <div id="listPasien" class="pj-patient-list" style="display:none;"></div>
+
+          <div id="emptyState" class="pj-state-center" style="display:none;">
+            <p class="pj-state-center__text">Belum ada pasien terdaftar.</p>
+          </div>
+
+          <div id="loadErrorState" class="pj-state-center" style="display:none;">
+            <p class="pj-state-center__text" id="loadErrorMsg">Gagal memuat daftar pasien.</p>
+            <button onclick="loadPasien()" class="pj-btn pj-btn--ghost pj-btn--sm pj-state-center__btn">Coba lagi</button>
+          </div>
+        </div>
+
+      </div><!-- /pj-index-grid -->
+    </div>
+  </main>
+
+  <footer class="pj-footer">© 2026 PantauJantung · Monitoring Kesehatan Jantung Berbasis IoT</footer>
+
+  <script src="/js/nav.js" defer></script>
+  <script>
+    // ── Helpers ───────────────────────────────────────────────────
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function initials(nama) {
+      return String(nama).trim().split(/\s+/).slice(0, 2).map(w => w[0].toUpperCase()).join('');
+    }
+
+    // ── Render list ────────────────────────────────────────────────
+    function renderList(pasienList) {
+      const list      = document.getElementById('listPasien');
+      const empty     = document.getElementById('emptyState');
+      const count     = document.getElementById('countBadge');
+      const loading   = document.getElementById('loadingState');
+      const errState  = document.getElementById('loadErrorState');
+
+      loading.style.display  = 'none';
+      errState.style.display = 'none';
+
+      count.textContent = pasienList.length + ' pasien';
+
+      if (pasienList.length === 0) {
+        list.style.display  = 'none';
+        empty.style.display = 'block';
+        return;
+      }
+
+      empty.style.display = 'none';
+      list.style.display  = 'flex';
+
+      list.innerHTML = pasienList.map(p => {
+        const safeNama = escapeHtml(p.nama);
+        const safeJk   = escapeHtml(p.jenis_kelamin);
+        const safeId   = escapeHtml(p.id_pasien);
+        return `
+        <div class="pj-patient-item">
+          <div class="pj-avatar">${initials(p.nama)}</div>
+          <div class="pj-patient-info">
+            <p class="pj-patient-info__name">${safeNama}</p>
+            <p class="pj-patient-info__meta">${escapeHtml(String(p.umur))} tahun · ${safeJk}</p>
+          </div>
+          <div class="pj-patient-actions">
+            <a href="/dashboard.html?id=${safeId}" class="pj-btn pj-btn--secondary pj-btn--sm">Lihat</a>
+            <a href="/chat.html?id=${safeId}" class="pj-btn pj-btn--primary pj-btn--sm">Tanya AI</a>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    // ── Load pasien dari API ───────────────────────────────────────
+    async function loadPasien() {
+      const loading  = document.getElementById('loadingState');
+      const errState = document.getElementById('loadErrorState');
+      const list     = document.getElementById('listPasien');
+      const empty    = document.getElementById('emptyState');
+
+      loading.style.display  = 'flex';
+      list.style.display     = 'none';
+      empty.style.display    = 'none';
+      errState.style.display = 'none';
+      document.getElementById('countBadge').textContent = 'Memuat…';
+
+      try {
+        const res  = await fetch('/api/patients');
+        if (!res.ok) {
+          const d = await res.json().catch(() => ({}));
+          throw new Error(d.error || 'Status ' + res.status);
+        }
+        const data = await res.json();
+        renderList(data);
+      } catch (err) {
+        loading.style.display  = 'none';
+        errState.style.display = 'block';
+        document.getElementById('loadErrorMsg').textContent = err.message || 'Gagal memuat daftar pasien.';
+        document.getElementById('countBadge').textContent = '—';
+      }
+    }
+
+    // ── Field validation helpers ───────────────────────────────────
+    function clearErrors() {
+      ['nama', 'umur', 'jk'].forEach(id => {
+        document.getElementById('err-' + id).classList.remove('visible');
+        document.getElementById(id).classList.remove('pj-input--error');
+      });
+      const se = document.getElementById('formServerError');
+      se.style.display = 'none';
+      se.textContent = '';
+    }
+
+    function showFieldError(field, msg) {
+      const errEl = document.getElementById('err-' + field);
+      if (msg) errEl.textContent = msg;
+      errEl.classList.add('visible');
+      document.getElementById(field).classList.add('pj-input--error');
+    }
+
+    // ── Form submit → POST /api/patients ──────────────────────────
+    document.getElementById('formPasien').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      clearErrors();
+
+      const nama = document.getElementById('nama').value.trim();
+      const umur = document.getElementById('umur').value.trim();
+      const jk   = document.getElementById('jk').value;
+      let ok = true;
+
+      if (!nama) {
+        showFieldError('nama', 'Nama tidak boleh kosong.');
+        ok = false;
+      } else if (nama.length > 100) {
+        showFieldError('nama', 'Nama maksimal 100 karakter.');
+        ok = false;
+      }
+
+      const umurInt = parseInt(umur, 10);
+      if (!umur || isNaN(umurInt) || umurInt < 0 || umurInt > 120) {
+        showFieldError('umur', 'Masukkan umur yang valid (0–120).');
+        ok = false;
+      }
+
+      if (!jk) {
+        showFieldError('jk', 'Pilih jenis kelamin.');
+        ok = false;
+      }
+
+      if (!ok) return;
+
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.textContent = 'Menyimpan…';
+
+      try {
+        const res = await fetch('/api/patients', {
+          method : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body   : JSON.stringify({ nama, umur: umurInt, jenis_kelamin: jk }),
+        });
+
+        const data = await res.json();
+
+        if (res.status === 422 && data.fields) {
+          // Per-field errors dari server
+          const fm = data.fields;
+          if (fm.nama)           showFieldError('nama', fm.nama);
+          if (fm.umur)           showFieldError('umur', fm.umur);
+          if (fm.jenis_kelamin)  showFieldError('jk', fm.jenis_kelamin);
+          return;
+        }
+
+        if (!res.ok) {
+          const se = document.getElementById('formServerError');
+          se.textContent = data.error || 'Terjadi kesalahan. Coba lagi.';
+          se.style.display = 'block';
+          return;
+        }
+
+        // Sukses
+        this.reset();
+        await loadPasien();
+
+        const toast = document.getElementById('toastOk');
+        toast.classList.add('visible');
+        setTimeout(() => toast.classList.remove('visible'), 3000);
+
+      } catch (_) {
+        const se = document.getElementById('formServerError');
+        se.textContent = 'Tidak dapat terhubung ke server. Periksa koneksi Anda.';
+        se.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Simpan dan lanjut ke pengukuran';
+      }
+    });
+
+    // ── Bootstrap ─────────────────────────────────────────────────
+
+    // Bersihkan session pasien di server; abaikan kegagalan
+    fetch('/api/clear-patient', { method: 'POST' }).catch(function () {});
+
+    // Tampilkan peringatan jika URL mengandung ?pilih=1
+    (function () {
+      var params = new URLSearchParams(location.search);
+      if (params.get('pilih') === '1') {
+        var alertEl = document.getElementById('pilihAlert');
+        alertEl.textContent = 'Pilih pasien terlebih dahulu untuk melihat dashboard atau asisten AI.';
+        alertEl.style.display = 'block';
+        params.delete('pilih');
+        var newSearch = params.toString();
+        history.replaceState(null, '', newSearch ? '?' + newSearch : location.pathname);
+      }
+    })();
+
+    loadPasien();
+  </script>
+</body>
+</html>
